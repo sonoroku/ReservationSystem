@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Student Union Conference Room 1",
+    "building": "Student Union",
+    "capacity": 10,
+    "features": ["Interactive Whiteboard", "PC", "Conference Table", "Wi-Fi"]
+  },
+  {
+    "id": 2,
+    "name": "Student Union Multipurpose Room",
+    "building": "Student Union",
+    "capacity": 850,
+    "features": ["Projector", "Speakers", "Stage Area", "Flexible Seating"]
+  },
+  {
+    "id": 3,
+    "name": "University Center North Meeting Room",
+    "building": "University Center",
+    "capacity": 40,
+    "features": ["Projector", "Whiteboard", "Wi-Fi", "Presentation Screen"]
+  },
+  {
+    "id": 4,
+    "name": "Odum Library Study Room",
+    "building": "Odum Library",
+    "capacity": 8,
+    "features": ["Whiteboard", "Study Table", "Wi-Fi"]
+  },
+  {
+    "id": 5,
+    "name": "Nevins Hall Computer Lab",
+    "building": "Nevins Hall",
+    "capacity": 30,
+    "features": ["Computers", "Projector", "Wi-Fi"]
+  }
+]
