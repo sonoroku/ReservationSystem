@@ -3,67 +3,70 @@ package reservationsystem.model;
 import java.time.LocalTime;
 
 public class TimeSlot {
-  private final LocalTime startTime;
-  private final LocalTime endTime;
-  private boolean reserved;
-  private Reservation reservation;
 
-public TimeSlot(LocalTime startTime, LocalTime endTime) {
-  if (startTime == null) {
-    throw new IllegalArgumentException("Start time cannot be null");
-  }
+    private final LocalTime startTime;
+    private final LocalTime endTime;
+    private boolean reserved;
+    private Reservation reservation;
 
-  if (endTime == null) {
-    throw new IllegalArgumentException("End time cannot be null");
-  }
+    public TimeSlot(LocalTime startTime, LocalTime endTime) {
+        if (startTime == null) {
+            throw new IllegalArgumentException("Start time cannot be null");
+        }
 
-  if (!startTime.isBefore(endTime)) {
-    throw new IllegalArgumentException("Start time must be before end time");
-  }
+        if (endTime == null) {
+            throw new IllegalArgumentException("End time cannot be null");
+        }
 
-  this.startTime = startTime;
-  this.endTime = endTime;
-  this.reserved = false;
-  this.reservation = null;
-}
-  public LocalTime getStartTime() {
-    return startTime;
-  }
+        if (!startTime.isBefore(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
 
-public LocalTime getEndTime () {
-  return endTime;
-}
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.reserved = false;
+        this.reservation = null;
+    }
 
-public boolean isReserved() {
-  return reserved;
-}
+    public LocalTime getStartTime() {
+        return startTime;
+    }
 
-public boolean isAvailable() {
-  return !reserved;
-}
+    public LocalTime getEndTime() {
+        return endTime;
+    }
 
-public Reservation getReservation() {
-  return reservation;
-}
+    public boolean isReserved() {
+        return reserved;
+    }
 
-public void markReserved(Reservation reservation) {
-  if (reservation == null) {
-    throw new IllegalArgumentException("Reservation cannot be null");
-  }
+    public boolean isAvailable() {
+        return !reserved;
+    }
 
-  this.reserved = true;
-  this.reservation = reservation;
-}
-  public void markAvailable() {
-    this.reserved = false;
-    this.reservation = null;
-  }
+    public Reservation getReservation() {
+        return reservation;
+    }
 
-public boolean overlaps(LocalTime otherStartTime, LocalTime otherEndTime) {
-  if (otherStartTime == null || otherEndTime == null) {
-    throw new IllegalArgumentException("Times cannot be null");
-  }
+    public void markReserved(Reservation reservation) {
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation cannot be null");
+        }
 
-  return startTime.isBefore(otherEndTime) && otherStartTime.isBefore(endTime);
-}
+        this.reserved = true;
+        this.reservation = reservation;
+    }
+
+    public void markAvailable() {
+        this.reserved = false;
+        this.reservation = null;
+    }
+
+    public boolean overlaps(LocalTime otherStartTime, LocalTime otherEndTime) {
+        if (otherStartTime == null || otherEndTime == null) {
+            throw new IllegalArgumentException("Times cannot be null");
+        }
+
+        return startTime.isBefore(otherEndTime) && otherStartTime.isBefore(endTime);
+    }
 }
