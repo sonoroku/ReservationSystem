@@ -3,7 +3,12 @@ module reservationsystem {
     requires javafx.fxml;
     requires com.google.gson;
 
+    exports reservationsystem;
+    exports reservationsystem.model;
+    exports reservationsystem.controller;
+    exports reservationsystem.persistence;
+    exports reservationsystem.view;
 
     opens reservationsystem to javafx.fxml;
-    exports reservationsystem;
+    opens reservationsystem.model to javafx.base;
 }
