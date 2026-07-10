@@ -62,7 +62,43 @@ class AvailabilityServiceTest {
                 .filter(TimeSlot::isReserved)
                 .count();
 
+        long availableCount = slots.stream()
+                .filter(TimeSlot::isAvailable)
+                .count();
+
         assertEquals(2, reservedCount);
+        assertEquals(22, availableCount);
+    }
+
+    @Test
+    void partialBookingMarksOnlyOverlappingSlotsReserved() {
+        AvailabilityService service = new AvailabilityService();
+
+        Reservation reservation = new Reservation(
+                1,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 15),
+                LocalTime.of(10, 15)
+        );
+
+        List<TimeSlot> slots = service.getAvailabilityForDay(
+                1,
+                LocalDate.of(2026, 7, 8),
+                List.of(reservation)
+        );
+
+        long reservedCount = slots.stream()
+                .filter(TimeSlot::isReserved)
+                .count();
+
+        long availableCount = slots.stream()
+                .filter(TimeSlot::isAvailable)
+                .count();
+
+        assertEquals(3, reservedCount);
+        assertEquals(21, availableCount);
     }
 
     @Test
