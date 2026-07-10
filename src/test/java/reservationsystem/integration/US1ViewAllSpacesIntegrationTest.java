@@ -62,4 +62,27 @@ class US1ViewAllSpacesIntegrationTest {
 
         assertTrue(controller.hasSpaces());
     }
+
+    @Test
+    void emptySpaceListIsHandledWithoutCrashing() {
+        // US-1 Acceptance Test 3:
+        // Given no spaces exist,
+        // when the controller retrieves spaces,
+        // then it returns an empty list without crashing.
+
+        SpaceJsonRepository emptyRepository = new SpaceJsonRepository() {
+            @Override
+            public List<Space> loadSpaces() {
+                return List.of();
+            }
+        };
+
+        SpaceController controller = new SpaceController(emptyRepository);
+
+        List<Space> spaces = controller.getAllSpaces();
+
+        assertNotNull(spaces);
+        assertTrue(spaces.isEmpty());
+        assertFalse(controller.hasSpaces());
+    }
 }
