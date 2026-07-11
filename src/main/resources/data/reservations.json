@@ -22,13 +22,5 @@
     "date": "2026-07-09",
     "startTime": "11:00",
     "endTime": "12:00"
-  },
-  {
-    "id": 4,
-    "spaceId": 1,
-    "userId": "user005",
-    "date": "2026-07-08",
-    "startTime": "15:00",
-    "endTime": "16:00"
   }
 ]

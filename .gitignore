@@ -32,5 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
+### Runtime app data ###
+app-data/
+
 ### Mac OS ###
 .DS_Store
