@@ -8,6 +8,7 @@ module reservationsystem {
     exports reservationsystem.controller;
     exports reservationsystem.persistence;
     exports reservationsystem.view;
+    exports reservationsystem.service;
 
     opens reservationsystem to javafx.fxml;
     opens reservationsystem.model to javafx.base;
