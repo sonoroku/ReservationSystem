@@ -34,6 +34,15 @@ public class ReservationJsonRepository {
     }
 
     public List<Reservation> loadReservations() {
+        if (Files.exists(RESERVATIONS_FILE_PATH)) {
+            try (Reader reader = Files.newBufferedReader(RESERVATIONS_FILE_PATH, StandardCharsets.UTF_8)) {
+                JsonArray reservationsJson = JsonParser.parseReader(reader).getAsJsonArray();
+                return parseReservations(reservationsJson);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to load reservations from " + RESERVATIONS_FILE_PATH, e);
+            }
+        }
+
         InputStream inputStream = getClass().getResourceAsStream(RESERVATIONS_RESOURCE_PATH);
 
         if (inputStream == null) {
