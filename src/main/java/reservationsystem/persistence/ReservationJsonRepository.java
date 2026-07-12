@@ -24,8 +24,8 @@ import java.util.List;
 public class ReservationJsonRepository {
 
     private static final String RESERVATIONS_RESOURCE_PATH = "/data/reservations.json";
-    private static final Path RESERVATIONS_FILE_PATH =
-            Path.of("src", "main", "resources", "data", "reservations.json");
+    private static final Path RESERVATIONS_RUNTIME_FILE_PATH =
+            Path.of("app-data", "reservations.json");
 
     private final Gson gson;
 
@@ -34,18 +34,13 @@ public class ReservationJsonRepository {
     }
 
     public List<Reservation> loadReservations() {
-        InputStream inputStream = getClass().getResourceAsStream(RESERVATIONS_RESOURCE_PATH);
-
-        if (inputStream == null) {
-            throw new IllegalStateException("Could not find " + RESERVATIONS_RESOURCE_PATH);
+        if (Files.exists(RESERVATIONS_RUNTIME_FILE_PATH)) {
+            return loadReservationsFromRuntimeFile();
         }
 
-        try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            JsonArray reservationsJson = JsonParser.parseReader(reader).getAsJsonArray();
-            return parseReservations(reservationsJson);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load reservations from " + RESERVATIONS_RESOURCE_PATH, e);
-        }
+        List<Reservation> starterReservations = loadReservationsFromResource();
+        saveReservations(starterReservations);
+        return starterReservations;
     }
 
     public void saveReservations(List<Reservation> reservations) {
@@ -60,13 +55,37 @@ public class ReservationJsonRepository {
         }
 
         try {
-            Files.createDirectories(RESERVATIONS_FILE_PATH.getParent());
+            Files.createDirectories(RESERVATIONS_RUNTIME_FILE_PATH.getParent());
 
-            try (Writer writer = Files.newBufferedWriter(RESERVATIONS_FILE_PATH, StandardCharsets.UTF_8)) {
+            try (Writer writer = Files.newBufferedWriter(RESERVATIONS_RUNTIME_FILE_PATH, StandardCharsets.UTF_8)) {
                 gson.toJson(reservationsJson, writer);
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to save reservations to " + RESERVATIONS_FILE_PATH, e);
+            throw new IllegalStateException("Failed to save reservations to " + RESERVATIONS_RUNTIME_FILE_PATH, e);
+        }
+    }
+
+    private List<Reservation> loadReservationsFromRuntimeFile() {
+        try (Reader reader = Files.newBufferedReader(RESERVATIONS_RUNTIME_FILE_PATH, StandardCharsets.UTF_8)) {
+            JsonArray reservationsJson = JsonParser.parseReader(reader).getAsJsonArray();
+            return parseReservations(reservationsJson);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load reservations from " + RESERVATIONS_RUNTIME_FILE_PATH, e);
+        }
+    }
+
+    private List<Reservation> loadReservationsFromResource() {
+        InputStream inputStream = getClass().getResourceAsStream(RESERVATIONS_RESOURCE_PATH);
+
+        if (inputStream == null) {
+            throw new IllegalStateException("Could not find " + RESERVATIONS_RESOURCE_PATH);
+        }
+
+        try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            JsonArray reservationsJson = JsonParser.parseReader(reader).getAsJsonArray();
+            return parseReservations(reservationsJson);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load reservations from " + RESERVATIONS_RESOURCE_PATH, e);
         }
     }
 
