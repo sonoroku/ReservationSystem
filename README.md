@@ -4,6 +4,8 @@
 
 Video link: 
 
+https://cdnapisec.kaltura.com/p/2229001/embedPlaykitJs/uiconf_id/45744511?iframeembed=true&entry_id=1_uhw09inm&config%5Bprovider%5D=%7B%22widgetId%22%3A%221_gpuatvr7%22%7D&config%5Bplayback%5D=%7B%22startTime%22%3A0%7D
+
 ## Project Overview
 
 ReservationSystem is a JavaFX Maven desktop application for reserving campus spaces. The system allows users to view reservable spaces, check daily availability for a selected space and date, and create reservations.
