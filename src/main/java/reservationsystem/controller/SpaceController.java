@@ -6,6 +6,7 @@ import reservationsystem.persistence.SpaceJsonRepository;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class SpaceController {
 
@@ -29,5 +30,9 @@ public class SpaceController {
 
     public boolean hasSpaces() {
         return !getAllSpaces().isEmpty();
+    }
+
+    public Optional<Space> getSelectedSpaceDetails(Space selectedSpace) {
+        return Optional.ofNullable(selectedSpace);
     }
 }
