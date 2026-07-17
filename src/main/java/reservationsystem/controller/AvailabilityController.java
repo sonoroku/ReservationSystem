@@ -4,6 +4,7 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.TimeSlot;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.AvailabilityService;
+import reservationsystem.model.DatedAvailability;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,5 +29,19 @@ public class AvailabilityController {
     public List<TimeSlot> getAvailabilityForDay(int spaceId, LocalDate date) {
         List<Reservation> reservations = reservationJsonRepository.loadReservations();
         return availabilityService.getAvailabilityForDay(spaceId, date, reservations);
+    }
+    
+    public List<DatedAvailability> getAvailabilityForDateRange(
+            int spaceId,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        List<Reservation> reservations = reservationJsonRepository.loadReservations();
+        return availabilityService.getAvailabilityForDateRange(
+                spaceId,
+                startDate,
+                endDate,
+                reservations
+        );
     }
 }
