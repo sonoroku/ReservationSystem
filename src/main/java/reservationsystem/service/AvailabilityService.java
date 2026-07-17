@@ -39,7 +39,7 @@ public class AvailabilityService {
             LocalDate endDate,
             List<Reservation> reservations
     ) {
-        validateDateRange(startDate, endDate, reservations);
+    	validateDateRange(spaceId, startDate, endDate, reservations);
 
         List<DatedAvailability> datedAvailabilityList = new ArrayList<>();
 
@@ -54,7 +54,11 @@ public class AvailabilityService {
         return datedAvailabilityList;
     }
 
-    private void validateDateRange(LocalDate startDate, LocalDate endDate, List<Reservation> reservations) {
+    private void validateDateRange(int spaceId, LocalDate startDate, LocalDate endDate, List<Reservation> reservations) {
+        if (spaceId <= 0) {
+            throw new IllegalArgumentException("Space ID must be positive");
+        }
+
         if (startDate == null) {
             throw new IllegalArgumentException("Start date cannot be null");
         }
@@ -71,9 +75,9 @@ public class AvailabilityService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
-        long inclusiveDayCount = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        long inclusiveDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
-        if (inclusiveDayCount > MAX_DATE_RANGE_DAYS) {
+        if (inclusiveDays > MAX_DATE_RANGE_DAYS) {
             throw new IllegalArgumentException("Date range cannot be longer than 7 days");
         }
     }

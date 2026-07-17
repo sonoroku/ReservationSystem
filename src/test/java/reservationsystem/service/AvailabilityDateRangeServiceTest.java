@@ -129,5 +129,22 @@ public class AvailabilityDateRangeServiceTest {
                 .filter(TimeSlot::isReserved)
                 .count();
     }
+    
+    @Test
+    void getAvailabilityForDateRangeRejectsNonpositiveSpaceId() {
+        AvailabilityService service = new AvailabilityService();
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.getAvailabilityForDateRange(
+                        0,
+                        LocalDate.of(2026, 7, 8),
+                        LocalDate.of(2026, 7, 10),
+                        List.of()
+                )
+        );
+
+        assertEquals("Space ID must be positive", exception.getMessage());
+    }
 
 }

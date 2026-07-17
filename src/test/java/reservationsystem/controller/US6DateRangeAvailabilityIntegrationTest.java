@@ -95,5 +95,25 @@ public class US6DateRangeAvailabilityIntegrationTest {
             return loadCount;
         }
     }
+    
+    @Test
+    void getAvailabilityForDateRangeRejectsNonpositiveSpaceId() {
+        FakeReservationJsonRepository repository = new FakeReservationJsonRepository(List.of());
+        AvailabilityController controller = new AvailabilityController(
+                new AvailabilityService(),
+                repository
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.getAvailabilityForDateRange(
+                        -1,
+                        LocalDate.of(2026, 7, 8),
+                        LocalDate.of(2026, 7, 10)
+                )
+        );
+
+        assertEquals("Space ID must be positive", exception.getMessage());
+    }
 
 }
