@@ -5,116 +5,145 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import reservationsystem.controller.AvailabilityController;
 import reservationsystem.controller.SpaceController;
+import reservationsystem.model.DatedAvailability;
 import reservationsystem.model.Space;
 import reservationsystem.model.TimeSlot;
-import javafx.scene.control.ListCell;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AvailabilityView {
 
-    private final SpaceController spaceController;
+	private final SpaceController spaceController;
     private final AvailabilityController availabilityController;
-
-    private final ComboBox<Space> spaceComboBox;
-    private final DatePicker datePicker;
-    private final ListView<TimeSlot> availabilityListView;
-    private final Label messageLabel;
     private final AvailabilityDisplayMapper availabilityDisplayMapper;
 
-    public AvailabilityView() {
-        this(new SpaceController(), new AvailabilityController());
-    }
+    private final ComboBox<Space> spaceComboBox;
+    private final DatePicker startDatePicker;
+    private final DatePicker endDatePicker;
+    private final ListView<AvailabilityListItem> availabilityListView;
+    private final Label messageLabel;
 
-    public AvailabilityView(SpaceController spaceController, AvailabilityController availabilityController) {
-        this.spaceController = spaceController;
-        this.availabilityController = availabilityController;
-        this.spaceComboBox = new ComboBox<>();
-        this.datePicker = new DatePicker();
-        this.availabilityListView = new ListView<>();
-        configureAvailabilityListView();
-        this.messageLabel = new Label();
+    public AvailabilityView() {
+        this.spaceController = new SpaceController();
+        this.availabilityController = new AvailabilityController();
         this.availabilityDisplayMapper = new AvailabilityDisplayMapper();
+
+        this.spaceComboBox = new ComboBox<>();
+        this.startDatePicker = new DatePicker();
+        this.endDatePicker = new DatePicker();
+        this.availabilityListView = new ListView<>();
+        this.messageLabel = new Label();
+
+        configureSpaceComboBox();
+        configureAvailabilityListView();
     }
 
     public VBox createView() {
-        Label titleLabel = new Label("View Day Availability");
+        Label titleLabel = new Label("View Space Availability");
+        Label spaceLabel = new Label("Select a space");
+        Label startDateLabel = new Label("Select a date");
+        Label endDateLabel = new Label("Select end date for range");
 
-        loadSpacesIntoComboBox();
+        Button loadDayButton = new Button("Load Day Availability");
+        loadDayButton.setOnAction(event -> loadDayAvailability());
 
-        datePicker.setValue(LocalDate.now());
+        Button loadRangeButton = new Button("View Range Availability");
+        loadRangeButton.setOnAction(event -> loadRangeAvailability());
 
-        Button loadAvailabilityButton = new Button("Load Availability");
-        loadAvailabilityButton.setOnAction(event -> loadAvailability());
-
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(
+        VBox view = new VBox(
+                10,
                 titleLabel,
-                new Label("Select a space:"),
+                spaceLabel,
                 spaceComboBox,
-                new Label("Select a date:"),
-                datePicker,
-                loadAvailabilityButton,
+                startDateLabel,
+                startDatePicker,
+                endDateLabel,
+                endDatePicker,
+                loadDayButton,
+                loadRangeButton,
                 messageLabel,
                 availabilityListView
         );
 
-        return layout;
+        view.setSpacing(10);
+        return view;
     }
 
-    private void loadSpacesIntoComboBox() {
+    private void configureSpaceComboBox() {
         List<Space> spaces = spaceController.getAllSpaces();
-
         spaceComboBox.setItems(FXCollections.observableArrayList(spaces));
 
-        if (!spaces.isEmpty()) {
-            spaceComboBox.setValue(spaces.get(0));
-        }
-
-        spaceComboBox.setCellFactory(listView -> new javafx.scene.control.ListCell<>() {
+        spaceComboBox.setCellFactory(listView -> new ListCell<>() {
             @Override
             protected void updateItem(Space space, boolean empty) {
                 super.updateItem(space, empty);
-
-                if (empty || space == null) {
-                    setText(null);
-                } else {
-                    setText(space.getName());
-                }
+                setText(empty || space == null ? null : space.getName());
             }
         });
 
-        spaceComboBox.setButtonCell(new javafx.scene.control.ListCell<>() {
+        spaceComboBox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(Space space, boolean empty) {
                 super.updateItem(space, empty);
-
-                if (empty || space == null) {
-                    setText(null);
-                } else {
-                    setText(space.getName());
-                }
+                setText(empty || space == null ? null : space.getName());
             }
         });
     }
 
-    private void loadAvailability() {
+    private void configureAvailabilityListView() {
+        availabilityListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(AvailabilityListItem item, boolean empty) {
+                super.updateItem(item, empty);
+
+                getStyleClass().removeAll(
+                        "availability-slot-available",
+                        "availability-slot-reserved",
+                        "availability-date-header"
+                );
+
+                if (empty || item == null) {
+                    setText(null);
+                    return;
+                }
+
+                if (item.isDateHeader()) {
+                    setText(formatDateHeader(item.getDate()));
+                    getStyleClass().add("availability-date-header");
+                    return;
+                }
+
+                AvailabilityDisplayState displayState =
+                        availabilityDisplayMapper.map(item.getTimeSlot());
+
+                setText(formatTimeSlot(item.getTimeSlot(), displayState));
+                getStyleClass().add(displayState.getStyleClass());
+            }
+        });
+    }
+
+    private void loadDayAvailability() {
         Space selectedSpace = spaceComboBox.getValue();
-        LocalDate selectedDate = datePicker.getValue();
+        LocalDate selectedDate = startDatePicker.getValue();
 
         if (selectedSpace == null) {
-            messageLabel.setText("Please select a space.");
+            showMessage("Please select a space.");
+            availabilityListView.getItems().clear();
             return;
         }
 
         if (selectedDate == null) {
-            messageLabel.setText("Please select a date.");
+            showMessage("Please select a date.");
+            availabilityListView.getItems().clear();
             return;
         }
 
@@ -123,40 +152,98 @@ public class AvailabilityView {
                 selectedDate
         );
 
-        availabilityListView.setItems(FXCollections.observableArrayList(timeSlots));
-        messageLabel.setText("Availability loaded for " + selectedSpace.getName() + ".");
+        List<AvailabilityListItem> displayItems = new ArrayList<>();
+        for (TimeSlot timeSlot : timeSlots) {
+            displayItems.add(AvailabilityListItem.forTimeSlot(timeSlot));
+        }
+
+        availabilityListView.setItems(FXCollections.observableArrayList(displayItems));
+        showMessage("Showing availability for " + selectedSpace.getName() + ".");
     }
-    
-    private void configureAvailabilityListView() {
-        availabilityListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(TimeSlot timeSlot, boolean empty) {
-                super.updateItem(timeSlot, empty);
 
-                getStyleClass().removeAll(
-                        "availability-slot-reserved",
-                        "availability-slot-available"
-                );
+    private void loadRangeAvailability() {
+        Space selectedSpace = spaceComboBox.getValue();
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
 
-                if (empty || timeSlot == null) {
-                    setText(null);
-                    return;
+        if (selectedSpace == null) {
+            showMessage("Please select a space.");
+            availabilityListView.getItems().clear();
+            return;
+        }
+
+        try {
+            List<DatedAvailability> dateRangeAvailability =
+                    availabilityController.getAvailabilityForDateRange(
+                            selectedSpace.getId(),
+                            startDate,
+                            endDate
+                    );
+
+            List<AvailabilityListItem> displayItems = new ArrayList<>();
+
+            for (DatedAvailability datedAvailability : dateRangeAvailability) {
+                displayItems.add(AvailabilityListItem.forDateHeader(datedAvailability.getDate()));
+
+                for (TimeSlot timeSlot : datedAvailability.getTimeSlots()) {
+                    displayItems.add(AvailabilityListItem.forTimeSlot(timeSlot));
                 }
-
-                AvailabilityDisplayState displayState = availabilityDisplayMapper.map(timeSlot);
-
-                setText(formatTimeSlot(timeSlot, displayState));
-                getStyleClass().add(displayState.getStyleClass());
             }
-        });
+
+            availabilityListView.setItems(FXCollections.observableArrayList(displayItems));
+            showMessage("Showing date range availability for " + selectedSpace.getName() + ".");
+        } catch (IllegalArgumentException exception) {
+            availabilityListView.getItems().clear();
+            showMessage(exception.getMessage());
+        }
     }
 
     private String formatTimeSlot(TimeSlot timeSlot, AvailabilityDisplayState displayState) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
-        String start = timeSlot.getStartTime().format(formatter);
-        String end = timeSlot.getEndTime().format(formatter);
+        return timeSlot.getStartTime().format(timeFormatter)
+                + " - "
+                + timeSlot.getEndTime().format(timeFormatter)
+                + " : "
+                + displayState.getStatusText();
+    }
 
-        return start + " - " + end + " : " + displayState.getStatusText();
+    private String formatDateHeader(LocalDate date) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
+        return date.format(dateFormatter);
+    }
+
+    private void showMessage(String message) {
+        messageLabel.setText(message);
+    }
+
+    private static class AvailabilityListItem {
+        private final LocalDate date;
+        private final TimeSlot timeSlot;
+
+        private AvailabilityListItem(LocalDate date, TimeSlot timeSlot) {
+            this.date = date;
+            this.timeSlot = timeSlot;
+        }
+
+        static AvailabilityListItem forDateHeader(LocalDate date) {
+            return new AvailabilityListItem(date, null);
+        }
+
+        static AvailabilityListItem forTimeSlot(TimeSlot timeSlot) {
+            return new AvailabilityListItem(null, timeSlot);
+        }
+
+        boolean isDateHeader() {
+            return date != null;
+        }
+
+        LocalDate getDate() {
+            return date;
+        }
+
+        TimeSlot getTimeSlot() {
+            return timeSlot;
+        }
     }
 }
