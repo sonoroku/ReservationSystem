@@ -1,12 +1,14 @@
 package reservationsystem.integration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.controller.ReservationController;
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -15,6 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class US8CreateReservationIntegrationTest {
 
+    @TempDir
+    Path tempDirectory;
+
+    private ReservationJsonRepository createIsolatedRepository() {
+        return new ReservationJsonRepository(
+                tempDirectory.resolve("reservations.json")
+        );
+    }
+
     @Test
     void validReservationIsCreatedAndSaved() {
         // US-8 Acceptance Test:
@@ -22,7 +33,7 @@ class US8CreateReservationIntegrationTest {
         // when the controller creates the reservation,
         // then the reservation is validated, saved, and returned as successful.
 
-        ReservationJsonRepository repository = new ReservationJsonRepository();
+        ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
         ReservationController controller = new ReservationController(repository, reservationService);
 
@@ -63,7 +74,7 @@ class US8CreateReservationIntegrationTest {
         // when the controller tries to create the reservation,
         // then the reservation is rejected and not saved.
 
-        ReservationJsonRepository repository = new ReservationJsonRepository();
+        ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
         ReservationController controller = new ReservationController(repository, reservationService);
 
@@ -106,7 +117,7 @@ class US8CreateReservationIntegrationTest {
         // when the controller tries to create the reservation,
         // then the reservation is rejected and not saved.
 
-        ReservationJsonRepository repository = new ReservationJsonRepository();
+        ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
         ReservationController controller = new ReservationController(repository, reservationService);
 
