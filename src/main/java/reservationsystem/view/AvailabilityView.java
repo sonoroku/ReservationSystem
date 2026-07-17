@@ -25,6 +25,7 @@ public class AvailabilityView {
     private final DatePicker datePicker;
     private final ListView<String> availabilityListView;
     private final Label messageLabel;
+    private final AvailabilityDisplayMapper availabilityDisplayMapper;
 
     public AvailabilityView() {
         this(new SpaceController(), new AvailabilityController());
@@ -37,6 +38,7 @@ public class AvailabilityView {
         this.datePicker = new DatePicker();
         this.availabilityListView = new ListView<>();
         this.messageLabel = new Label();
+        this.availabilityDisplayMapper = new AvailabilityDisplayMapper();
     }
 
     public VBox createView() {
@@ -130,9 +132,9 @@ public class AvailabilityView {
                 .map(timeSlot -> {
                     String start = timeSlot.getStartTime().format(formatter);
                     String end = timeSlot.getEndTime().format(formatter);
-                    String status = timeSlot.isReserved() ? "Reserved" : "Available";
+                    AvailabilityDisplayState displayState = availabilityDisplayMapper.map(timeSlot);
 
-                    return start + " - " + end + " : " + status;
+                    return start + " - " + end + " : " + displayState.getStatusText();
                 })
                 .toList();
     }
