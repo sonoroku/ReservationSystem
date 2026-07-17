@@ -11,6 +11,7 @@ import reservationsystem.controller.AvailabilityController;
 import reservationsystem.controller.SpaceController;
 import reservationsystem.model.Space;
 import reservationsystem.model.TimeSlot;
+import javafx.scene.control.ListCell;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +24,7 @@ public class AvailabilityView {
 
     private final ComboBox<Space> spaceComboBox;
     private final DatePicker datePicker;
-    private final ListView<String> availabilityListView;
+    private final ListView<TimeSlot> availabilityListView;
     private final Label messageLabel;
     private final AvailabilityDisplayMapper availabilityDisplayMapper;
 
@@ -37,6 +38,7 @@ public class AvailabilityView {
         this.spaceComboBox = new ComboBox<>();
         this.datePicker = new DatePicker();
         this.availabilityListView = new ListView<>();
+        configureAvailabilityListView();
         this.messageLabel = new Label();
         this.availabilityDisplayMapper = new AvailabilityDisplayMapper();
     }
@@ -121,21 +123,40 @@ public class AvailabilityView {
                 selectedDate
         );
 
-        availabilityListView.setItems(FXCollections.observableArrayList(formatTimeSlots(timeSlots)));
+        availabilityListView.setItems(FXCollections.observableArrayList(timeSlots));
         messageLabel.setText("Availability loaded for " + selectedSpace.getName() + ".");
     }
+    
+    private void configureAvailabilityListView() {
+        availabilityListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(TimeSlot timeSlot, boolean empty) {
+                super.updateItem(timeSlot, empty);
 
-    private List<String> formatTimeSlots(List<TimeSlot> timeSlots) {
+                getStyleClass().removeAll(
+                        "availability-slot-reserved",
+                        "availability-slot-available"
+                );
+
+                if (empty || timeSlot == null) {
+                    setText(null);
+                    return;
+                }
+
+                AvailabilityDisplayState displayState = availabilityDisplayMapper.map(timeSlot);
+
+                setText(formatTimeSlot(timeSlot, displayState));
+                getStyleClass().add(displayState.getStyleClass());
+            }
+        });
+    }
+
+    private String formatTimeSlot(TimeSlot timeSlot, AvailabilityDisplayState displayState) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
 
-        return timeSlots.stream()
-                .map(timeSlot -> {
-                    String start = timeSlot.getStartTime().format(formatter);
-                    String end = timeSlot.getEndTime().format(formatter);
-                    AvailabilityDisplayState displayState = availabilityDisplayMapper.map(timeSlot);
+        String start = timeSlot.getStartTime().format(formatter);
+        String end = timeSlot.getEndTime().format(formatter);
 
-                    return start + " - " + end + " : " + displayState.getStatusText();
-                })
-                .toList();
+        return start + " - " + end + " : " + displayState.getStatusText();
     }
 }
