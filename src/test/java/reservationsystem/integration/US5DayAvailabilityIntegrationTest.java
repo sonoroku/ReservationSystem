@@ -1,17 +1,28 @@
 package reservationsystem.integration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.controller.AvailabilityController;
 import reservationsystem.model.TimeSlot;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.AvailabilityService;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class US5DayAvailabilityIntegrationTest {
+
+    @TempDir
+    Path tempDirectory;
+
+    private ReservationJsonRepository createIsolatedRepository() {
+        return new ReservationJsonRepository(
+                tempDirectory.resolve("reservations.json")
+        );
+    }
 
     @Test
     void reservationDataLoadsAndGeneratesAvailabilityForSelectedSpaceAndDate() {
@@ -21,7 +32,7 @@ class US5DayAvailabilityIntegrationTest {
         // then the schedule shows reserved and available 30-minute slots.
 
         AvailabilityService availabilityService = new AvailabilityService();
-        ReservationJsonRepository reservationJsonRepository = new ReservationJsonRepository();
+        ReservationJsonRepository reservationJsonRepository = createIsolatedRepository();
 
         AvailabilityController controller = new AvailabilityController(
                 availabilityService,
@@ -56,7 +67,7 @@ class US5DayAvailabilityIntegrationTest {
         // then all 30-minute slots remain available.
 
         AvailabilityService availabilityService = new AvailabilityService();
-        ReservationJsonRepository reservationJsonRepository = new ReservationJsonRepository();
+        ReservationJsonRepository reservationJsonRepository = createIsolatedRepository();
 
         AvailabilityController controller = new AvailabilityController(
                 availabilityService,
@@ -91,7 +102,7 @@ class US5DayAvailabilityIntegrationTest {
         // then every overlapping 30-minute slot is marked reserved.
 
         AvailabilityService availabilityService = new AvailabilityService();
-        ReservationJsonRepository reservationJsonRepository = new ReservationJsonRepository();
+        ReservationJsonRepository reservationJsonRepository = createIsolatedRepository();
 
         AvailabilityController controller = new AvailabilityController(
                 availabilityService,
