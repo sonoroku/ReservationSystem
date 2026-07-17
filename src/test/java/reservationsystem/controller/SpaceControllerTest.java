@@ -8,6 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SpaceControllerTest {
@@ -48,6 +49,51 @@ public class SpaceControllerTest {
 
         assertTrue(spaces.isEmpty());
         assertFalse(controller.hasSpaces());
+    }
+
+    @Test
+    void getSelectedSpaceDetailsReturnsCompleteSelectedSpaceData() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of()));
+        Space selectedSpace = new Space(
+                1,
+                "Collaboration Room",
+                "Library",
+                8,
+                List.of("Projector", "Whiteboard", "Computers")
+        );
+
+        Space result = controller.getSelectedSpaceDetails(selectedSpace).orElseThrow();
+
+        assertSame(selectedSpace, result);
+        assertEquals("Collaboration Room", result.getName());
+        assertEquals("Library", result.getBuilding());
+        assertEquals(8, result.getCapacity());
+        assertEquals(List.of("Projector", "Whiteboard", "Computers"), result.getFeatures());
+    }
+
+    @Test
+    void getSelectedSpaceDetailsReturnsSpaceWithNoFeatures() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of()));
+        Space selectedSpace = new Space(
+                2,
+                "Quiet Study Room",
+                "Student Center",
+                4,
+                List.of()
+        );
+
+        Space result = controller.getSelectedSpaceDetails(selectedSpace).orElseThrow();
+
+        assertEquals("Student Center", result.getBuilding());
+        assertEquals(4, result.getCapacity());
+        assertTrue(result.getFeatures().isEmpty());
+    }
+
+    @Test
+    void getSelectedSpaceDetailsReturnsEmptyWhenNoSpaceIsSelected() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of()));
+
+        assertTrue(controller.getSelectedSpaceDetails(null).isEmpty());
     }
 
     private static class FakeSpaceJsonRepository extends SpaceJsonRepository {
