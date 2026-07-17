@@ -1,0 +1,15 @@
+.availability-slot-available {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #1b5e20;
+}
+
+.availability-slot-reserved {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #b71c1c;
+}
+
+.availability-slot-available:selected,
+.availability-slot-reserved:selected {
+    -fx-background-color: #bbdefb;
+    -fx-text-fill: #0d47a1;
+}

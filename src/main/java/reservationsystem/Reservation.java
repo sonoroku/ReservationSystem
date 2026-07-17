@@ -34,6 +34,9 @@ public class Reservation extends Application {
         tabPane.getTabs().addAll(spacesTab, availabilityTab, createReservationTab);
 
         Scene scene = new Scene(tabPane, 800, 650);
+        scene.getStylesheets().add(
+                getClass().getResource("/availability-styles.css").toExternalForm()
+        );
 
         stage.setTitle("Reservation System");
         stage.setScene(scene);
