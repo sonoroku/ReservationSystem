@@ -24,7 +24,6 @@ public class CreateReservationView {
 
     private final ComboBox<Space> spaceComboBox;
     private final DatePicker datePicker;
-    private final TextField userIdField;
     private final TextField startTimeField;
     private final TextField endTimeField;
     private final Label messageLabel;
@@ -41,7 +40,6 @@ public class CreateReservationView {
         this.reservationController = reservationController;
         this.spaceComboBox = new ComboBox<>();
         this.datePicker = new DatePicker();
-        this.userIdField = new TextField();
         this.startTimeField = new TextField();
         this.endTimeField = new TextField();
         this.messageLabel = new Label();
@@ -54,7 +52,6 @@ public class CreateReservationView {
 
         datePicker.setValue(LocalDate.now());
 
-        userIdField.setPromptText("Example: user001");
         startTimeField.setPromptText("Example: 09:00");
         endTimeField.setPromptText("Example: 10:00");
 
@@ -68,8 +65,6 @@ public class CreateReservationView {
                 spaceComboBox,
                 new Label("Select a date:"),
                 datePicker,
-                new Label("User ID:"),
-                userIdField,
                 new Label("Start time:"),
                 startTimeField,
                 new Label("End time:"),
@@ -120,7 +115,6 @@ public class CreateReservationView {
     private void createReservation() {
         Space selectedSpace = spaceComboBox.getValue();
         LocalDate selectedDate = datePicker.getValue();
-        String userId = userIdField.getText().trim();
 
         if (selectedSpace == null) {
             messageLabel.setText("Please select a space.");
@@ -132,18 +126,12 @@ public class CreateReservationView {
             return;
         }
 
-        if (userId.isEmpty()) {
-            messageLabel.setText("Please enter a user ID.");
-            return;
-        }
-
         try {
             LocalTime startTime = LocalTime.parse(startTimeField.getText().trim());
             LocalTime endTime = LocalTime.parse(endTimeField.getText().trim());
 
             ReservationValidationResult result = reservationController.createReservation(
                     selectedSpace.getId(),
-                    userId,
                     selectedDate,
                     startTime,
                     endTime

@@ -8,6 +8,7 @@ As a student, I want to create a reservation for an available space so that I ca
 
 - Application: ReservationSystem JavaFX app
 - Command used to run app: `.\mvnw.cmd javafx:run`
+- Sprint 1 active user: `student` (assigned automatically; no user ID input)
 - Tester: ao
 - Date tested: July 11, 2026
 
@@ -19,20 +20,18 @@ As a student, I want to create a reservation for an available space so that I ca
 2. Open the Create Reservation tab.
 3. Select a space.
 4. Select a date.
-5. Enter a user ID.
-6. Enter a valid start time.
-7. Enter a valid end time.
-8. Click the create reservation button.
-9. Open the Availability tab.
-10. Select the same space and date.
-11. Load the availability schedule.
-12. Confirm the new reservation time appears as reserved.
+5. Enter a valid start time.
+6. Enter a valid end time.
+7. Click the create reservation button.
+8. Open the Availability tab.
+9. Select the same space and date.
+10. Load the availability schedule.
+11. Confirm the new reservation time appears as reserved.
 
 ### Example Test Data
 
 - Space: Student Union Conference Room 1
 - Date: 2026-07-08
-- User ID: user999
 - Start Time: 16:00
 - End Time: 17:00
 
@@ -56,15 +55,13 @@ Pass
 2. Open the Create Reservation tab.
 3. Select a space that already has a reservation.
 4. Select the matching reservation date.
-5. Enter a user ID.
-6. Enter a start time and end time that overlap an existing reservation.
-7. Click the create reservation button.
+5. Enter a start time and end time that overlap an existing reservation.
+6. Click the create reservation button.
 
 ### Example Test Data
 
 - Space: Student Union Conference Room 1
 - Date: 2026-07-08
-- User ID: user998
 - Start Time: 09:30
 - End Time: 10:30
 
@@ -88,15 +85,13 @@ Pass
 2. Open the Create Reservation tab.
 3. Select a space.
 4. Select a date.
-5. Enter a user ID.
-6. Enter a start time that is after the end time.
-7. Click the create reservation button.
+5. Enter a start time that is after the end time.
+6. Click the create reservation button.
 
 ### Example Test Data
 
 - Space: Student Union Conference Room 1
 - Date: 2026-07-08
-- User ID: user997
 - Start Time: 11:00
 - End Time: 10:00
 
@@ -120,15 +115,13 @@ Pass
 2. Open the Create Reservation tab.
 3. Select a space.
 4. Select a date.
-5. Enter a user ID.
-6. Enter a start time and end time more than 2 hours apart.
-7. Click the create reservation button.
+5. Enter a start time and end time more than 2 hours apart.
+6. Click the create reservation button.
 
 ### Example Test Data
 
 - Space: Student Union Conference Room 1
 - Date: 2026-07-08
-- User ID: user996
 - Start Time: 13:00
 - End Time: 15:01
 
@@ -152,16 +145,14 @@ Pass
 2. Open the Create Reservation tab.
 3. Select a space that already has a reservation.
 4. Select the matching reservation date.
-5. Enter a user ID.
-6. Enter a start time that is less than 10 minutes after an existing reservation ends.
-7. Click the create reservation button.
+5. Enter a start time that is less than 10 minutes after an existing reservation ends.
+6. Click the create reservation button.
 
 ### Example Test Data
 
 - Existing Reservation: 09:00 to 10:00
 - Space: Student Union Conference Room 1
 - Date: 2026-07-08
-- User ID: user995
 - Start Time: 10:05
 - End Time: 11:00
 
