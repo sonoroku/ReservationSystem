@@ -31,13 +31,13 @@ class US3MinimumCapacityFilteringIntegrationTest {
     }
 
     @Test
-    void maximumValidMinimumUsesStarterRepositoryWithoutJavaFx() {
+    void maximumValidMinimumReturnsControlledEmptyResultWithoutJavaFx() {
         SpaceController controller = new SpaceController(new SpaceJsonRepository());
 
         SpaceFilterResult result = controller.filterByMinimumCapacity("500");
 
-        assertEquals(SpaceFilterResult.Status.SUCCESS, result.status());
-        assertEquals(List.of("Student Union Multipurpose Room"),
-                result.spaces().stream().map(Space::getName).toList());
+        assertEquals(SpaceFilterResult.Status.EMPTY, result.status());
+        assertTrue(result.spaces().isEmpty());
+        assertEquals("No spaces match the filter.", result.message());
     }
 }
