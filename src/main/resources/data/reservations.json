@@ -2,7 +2,7 @@
   {
     "id": 1,
     "spaceId": 1,
-    "userId": "user001",
+    "userId": "student",
     "date": "2026-07-08",
     "startTime": "09:00",
     "endTime": "10:00"
@@ -10,7 +10,7 @@
   {
     "id": 2,
     "spaceId": 2,
-    "userId": "user002",
+    "userId": "admin",
     "date": "2026-07-08",
     "startTime": "13:00",
     "endTime": "14:30"
@@ -18,7 +18,7 @@
   {
     "id": 3,
     "spaceId": 3,
-    "userId": "user003",
+    "userId": "student",
     "date": "2026-07-09",
     "startTime": "11:00",
     "endTime": "12:00"
