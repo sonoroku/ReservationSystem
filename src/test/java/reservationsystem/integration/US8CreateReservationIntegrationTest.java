@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.controller.ReservationController;
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
+import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
 
@@ -27,7 +28,7 @@ class US8CreateReservationIntegrationTest {
     }
 
     @Test
-    void validReservationIsCreatedAndSaved() {
+    void validReservationIsCreatedForDefaultUserAndSaved() {
         // US-8 Acceptance Test:
         // Given a user enters valid reservation information,
         // when the controller creates the reservation,
@@ -42,7 +43,6 @@ class US8CreateReservationIntegrationTest {
         try {
             ReservationValidationResult result = controller.createReservation(
                     1,
-                    "user999",
                     LocalDate.of(2026, 7, 8),
                     LocalTime.of(16, 0),
                     LocalTime.of(17, 0)
@@ -55,7 +55,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals("user999")
+                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(16, 0))
                                     && reservation.getEndTime().equals(LocalTime.of(17, 0))
@@ -83,7 +83,6 @@ class US8CreateReservationIntegrationTest {
         try {
             ReservationValidationResult result = controller.createReservation(
                     1,
-                    "user998",
                     LocalDate.of(2026, 7, 8),
                     LocalTime.of(9, 30),
                     LocalTime.of(10, 30)
@@ -97,7 +96,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals("user998")
+                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(9, 30))
                                     && reservation.getEndTime().equals(LocalTime.of(10, 30))
@@ -126,7 +125,6 @@ class US8CreateReservationIntegrationTest {
         try {
             ReservationValidationResult result = controller.createReservation(
                     1,
-                    "user997",
                     LocalDate.of(2026, 7, 8),
                     LocalTime.of(10, 5),
                     LocalTime.of(11, 0)
@@ -143,7 +141,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals("user997")
+                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(10, 5))
                                     && reservation.getEndTime().equals(LocalTime.of(11, 0))

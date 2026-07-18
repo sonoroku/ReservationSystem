@@ -2,6 +2,8 @@ package reservationsystem.controller;
 
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
+import reservationsystem.service.CurrentUserProvider;
+import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
 
@@ -14,22 +16,35 @@ public class ReservationController {
 
     private final ReservationJsonRepository reservationJsonRepository;
     private final ReservationService reservationService;
+    private final CurrentUserProvider currentUserProvider;
 
     public ReservationController() {
-        this(new ReservationJsonRepository(), new ReservationService());
+        this(
+                new ReservationJsonRepository(),
+                new ReservationService(),
+                new DefaultUserProvider()
+        );
     }
 
     public ReservationController(
             ReservationJsonRepository reservationJsonRepository,
             ReservationService reservationService
     ) {
+        this(reservationJsonRepository, reservationService, new DefaultUserProvider());
+    }
+
+    public ReservationController(
+            ReservationJsonRepository reservationJsonRepository,
+            ReservationService reservationService,
+            CurrentUserProvider currentUserProvider
+    ) {
         this.reservationJsonRepository = reservationJsonRepository;
         this.reservationService = reservationService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     public ReservationValidationResult createReservation(
             int spaceId,
-            String userId,
             LocalDate date,
             LocalTime startTime,
             LocalTime endTime
@@ -41,7 +56,7 @@ public class ReservationController {
         Reservation newReservation = new Reservation(
                 newReservationId,
                 spaceId,
-                userId,
+                currentUserProvider.getCurrentUserId(),
                 date,
                 startTime,
                 endTime
