@@ -1,6 +1,7 @@
 package reservationsystem.controller;
 
 import org.junit.jupiter.api.Test;
+import reservationsystem.controller.SpaceFilterResult.Status;
 import reservationsystem.model.Space;
 import reservationsystem.persistence.SpaceJsonRepository;
 
@@ -49,6 +50,59 @@ public class SpaceControllerTest {
 
         assertTrue(spaces.isEmpty());
         assertFalse(controller.hasSpaces());
+    }
+
+    @Test
+    void minimumCapacityFilterIncludesExactMatchesAndPreservesAlphabeticalOrder() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of(
+                new Space(1, "Zoom Room", "Library", 40, List.of()),
+                new Space(2, "Auditorium", "Student Center", 100, List.of()),
+                new Space(3, "Computer Lab", "Science Hall", 39, List.of())
+        )));
+
+        SpaceFilterResult result = controller.filterByMinimumCapacity("40");
+
+        assertEquals(Status.SUCCESS, result.status());
+        assertTrue(result.isValid());
+        assertEquals(List.of("Auditorium", "Zoom Room"),
+                result.spaces().stream().map(Space::getName).toList());
+        assertEquals(40, result.spaces().get(1).getCapacity());
+    }
+
+    @Test
+    void minimumCapacityFilterReturnsControlledEmptyResult() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of(
+                new Space(1, "Small Room", "Library", 10, List.of())
+        )));
+
+        SpaceFilterResult result = controller.filterByMinimumCapacity("500");
+
+        assertEquals(Status.EMPTY, result.status());
+        assertTrue(result.isValid());
+        assertTrue(result.spaces().isEmpty());
+        assertEquals("No spaces match the filter.", result.message());
+    }
+
+    @Test
+    void minimumCapacityFilterRejectsInvalidInputsWithClearErrors() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of()));
+
+        for (String input : new String[]{"people", "-1", "0", "501"}) {
+            SpaceFilterResult result = controller.filterByMinimumCapacity(input);
+
+            assertEquals(Status.INVALID_INPUT, result.status(), "input: " + input);
+            assertFalse(result.isValid(), "input: " + input);
+            assertTrue(result.spaces().isEmpty(), "input: " + input);
+            assertFalse(result.message().isBlank(), "input: " + input);
+        }
+    }
+
+    @Test
+    void minimumCapacityFilterRejectsMissingInput() {
+        SpaceController controller = new SpaceController(new FakeSpaceJsonRepository(List.of()));
+
+        assertEquals("Minimum capacity is required.", controller.filterByMinimumCapacity(null).message());
+        assertEquals("Minimum capacity is required.", controller.filterByMinimumCapacity("  ").message());
     }
 
     @Test
