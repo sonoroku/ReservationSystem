@@ -8,6 +8,7 @@ import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
+import reservationsystem.service.ReservationCancellationResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -120,6 +121,28 @@ public class ReservationController {
         }
 
         return spaceController.getSpaceById(reservation.getSpaceId());
+    }
+    
+    public ReservationCancellationResult cancelReservation(int reservationId) {
+        List<Reservation> existingReservations = reservationJsonRepository.loadReservations();
+
+        Reservation reservationToCancel = existingReservations.stream()
+                .filter(reservation -> reservation.getId() == reservationId)
+                .findFirst()
+                .orElse(null);
+
+        if (reservationToCancel == null) {
+            return ReservationCancellationResult.notFound();
+        }
+
+        if (!currentUserProvider.getCurrentUserId().equals(reservationToCancel.getUserId())) {
+            return ReservationCancellationResult.notOwned();
+        }
+
+        existingReservations.remove(reservationToCancel);
+        reservationJsonRepository.saveReservations(existingReservations);
+
+        return ReservationCancellationResult.success();
     }
 
     private int getNextReservationId(List<Reservation> reservations) {
