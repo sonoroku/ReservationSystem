@@ -22,7 +22,7 @@ import java.util.List;
 
 public class AvailabilityView {
 
-	private final SpaceController spaceController;
+    private final SpaceController spaceController;
     private final AvailabilityController availabilityController;
     private final AvailabilityDisplayMapper availabilityDisplayMapper;
 
@@ -33,8 +33,15 @@ public class AvailabilityView {
     private final Label messageLabel;
 
     public AvailabilityView() {
-        this.spaceController = new SpaceController();
-        this.availabilityController = new AvailabilityController();
+        this(new SpaceController(), new AvailabilityController());
+    }
+
+    public AvailabilityView(
+            SpaceController spaceController,
+            AvailabilityController availabilityController
+    ) {
+        this.spaceController = spaceController;
+        this.availabilityController = availabilityController;
         this.availabilityDisplayMapper = new AvailabilityDisplayMapper();
 
         this.spaceComboBox = new ComboBox<>();
