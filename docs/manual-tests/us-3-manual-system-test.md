@@ -28,7 +28,7 @@ Verify that a user can filter the existing Spaces table by minimum capacity, rec
 | Nevins Hall Computer Lab | 30 |
 | Odum Library Study Room | 8 |
 | Student Union Conference Room 1 | 10 |
-| Student Union Multipurpose Room | 850 |
+| Student Union Multipurpose Room | 450 |
 | University Center North Meeting Room | 40 |
 
 ## Scenario 1: Normal Minimum Returns Multiple Spaces
@@ -46,7 +46,7 @@ Verify that a user can filter the existing Spaces table by minimum capacity, rec
 
 ### Actual Result
 
-- The table displayed Nevins Hall Computer Lab (30), Student Union Multipurpose Room (850), and University Center North Meeting Room (40).
+- The table displayed Nevins Hall Computer Lab (30), Student Union Multipurpose Room (450), and University Center North Meeting Room (40).
 - The three results remained alphabetical.
 - No validation message was displayed.
 
@@ -69,7 +69,7 @@ Pass
 
 ### Actual Result
 
-- University Center North Meeting Room (40) and Student Union Multipurpose Room (850) were displayed.
+- University Center North Meeting Room (40) and Student Union Multipurpose Room (450) were displayed.
 - The exact match was included and all lower-capacity spaces were excluded.
 
 ### Status
@@ -80,7 +80,7 @@ Pass
 
 ### Steps
 
-1. Attempt to choose a valid minimum from 1 through 500 that is greater than every starter-space capacity.
+1. Enter `500` in the Minimum capacity field.
 2. Click `Apply`.
 
 ### Expected Result
@@ -91,13 +91,14 @@ Pass
 
 ### Actual Result
 
-- This scenario could not be produced with the committed system data.
-- The largest accepted minimum is 500, while Student Union Multipurpose Room has capacity 850, so at least that space matches every valid minimum.
-- The controlled empty result remains covered by the headless `SpaceControllerTest`, but the end-to-end empty UI state is not manually demonstrable with starter data.
+- The existing table became empty.
+- The message `No spaces match the filter.` was displayed.
+- The table displayed its no-match placeholder.
+- The repository/controller integration test also verified the controlled empty result against the committed starter data.
 
 ### Status
 
-Blocked by test data and validation-range mismatch; follow-up required
+Pass
 
 ## Scenario 4: Nonnumeric Input
 
@@ -259,10 +260,8 @@ Pass
 
 ## Defects and Follow-Up Work
 
-The valid no-match UI scenario cannot be executed with the current starter data and the required input range. The filter accepts only 1 through 500, but a starter space has capacity 850. A follow-up should reconcile these constraints by changing the agreed maximum, providing controlled UI-level test data, or adding another supported way to exercise the empty state. Starter JSON was not changed during this test.
-
-No other defects were identified.
+No defects were identified. Student Union Multipurpose Room uses capacity 450, keeping the starter data within the supported 1-through-500 filter range and allowing input 500 to exercise the valid no-match state.
 
 ## Demo Readiness
 
-US-3 is ready to demonstrate for normal filtering, inclusive exact matches, validation errors, Clear, alphabetical listing, and space details. The valid no-match state is implemented and covered by headless tests, but it is not ready for a starter-data-based manual demo until the documented data/range mismatch is resolved.
+US-3 is ready to demonstrate for normal filtering, inclusive exact matches, the valid no-match state, validation errors, Clear, alphabetical listing, and space details.
