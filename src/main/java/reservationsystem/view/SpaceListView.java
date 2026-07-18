@@ -5,9 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import reservationsystem.controller.SpaceController;
+import reservationsystem.controller.SpaceFilterResult;
 import reservationsystem.model.Space;
 
 import java.util.List;
@@ -38,6 +41,7 @@ public class SpaceListView {
         Label titleLabel = new Label("Reservable Spaces");
 
         TableView<Space> tableView = new TableView<>();
+        tableView.setId("spaces-table");
 
         TableColumn<Space, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -52,13 +56,39 @@ public class SpaceListView {
         tableView.getColumns().add(buildingColumn);
         tableView.getColumns().add(capacityColumn);
 
-        List<Space> spaces = spaceController.getAllSpaces();
+        restoreAllSpaces(tableView);
 
-        if (spaces.isEmpty()) {
-            tableView.setPlaceholder(new Label("No spaces available"));
-        } else {
-            tableView.setItems(FXCollections.observableArrayList(spaces));
-        }
+        Label minimumCapacityLabel = new Label("Minimum capacity:");
+        TextField minimumCapacityField = new TextField();
+        minimumCapacityField.setId("minimum-capacity-field");
+        minimumCapacityField.setPromptText("1-500");
+
+        Label filterMessageLabel = new Label();
+        filterMessageLabel.setId("capacity-filter-message");
+
+        Button applyFilterButton = new Button("Apply");
+        applyFilterButton.setId("apply-capacity-filter");
+        applyFilterButton.setOnAction(event -> applyCapacityFilter(
+                minimumCapacityField.getText(),
+                tableView,
+                filterMessageLabel
+        ));
+
+        Button clearFilterButton = new Button("Clear");
+        clearFilterButton.setId("clear-capacity-filter");
+        clearFilterButton.setOnAction(event -> {
+            minimumCapacityField.clear();
+            filterMessageLabel.setText("");
+            restoreAllSpaces(tableView);
+        });
+
+        HBox capacityFilterControls = new HBox(
+                5,
+                minimumCapacityLabel,
+                minimumCapacityField,
+                applyFilterButton,
+                clearFilterButton
+        );
 
         Button viewDetailsButton = new Button("View Details");
         viewDetailsButton.setOnAction(event -> showSelectedSpaceDetails(
@@ -75,9 +105,36 @@ public class SpaceListView {
         );
 
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(titleLabel, tableView, viewDetailsButton, detailsPanel);
+        layout.getChildren().addAll(
+                titleLabel,
+                capacityFilterControls,
+                filterMessageLabel,
+                tableView,
+                viewDetailsButton,
+                detailsPanel
+        );
 
         return layout;
+    }
+
+    private void applyCapacityFilter(
+            String minimumCapacityInput,
+            TableView<Space> tableView,
+            Label filterMessageLabel
+    ) {
+        SpaceFilterResult result = spaceController.filterByMinimumCapacity(minimumCapacityInput);
+        filterMessageLabel.setText(result.message());
+
+        if (result.isValid()) {
+            tableView.setItems(FXCollections.observableArrayList(result.spaces()));
+            tableView.setPlaceholder(new Label("No spaces match the filter"));
+        }
+    }
+
+    private void restoreAllSpaces(TableView<Space> tableView) {
+        List<Space> spaces = spaceController.getAllSpaces();
+        tableView.setItems(FXCollections.observableArrayList(spaces));
+        tableView.setPlaceholder(new Label("No spaces available"));
     }
 
     private void showSelectedSpaceDetails(Space selectedSpace) {
