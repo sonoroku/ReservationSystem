@@ -28,6 +28,7 @@ public class MyReservationsService {
         userReservations.sort(
                 Comparator.comparing(Reservation::getDate)
                         .thenComparing(Reservation::getStartTime)
+                        .thenComparingInt(Reservation::getId)
         );
 
         return userReservations;

@@ -35,4 +35,10 @@ public class SpaceController {
     public Optional<Space> getSelectedSpaceDetails(Space selectedSpace) {
         return Optional.ofNullable(selectedSpace);
     }
+
+    public Optional<Space> getSpaceById(int spaceId) {
+        return getAllSpaces().stream()
+                .filter(space -> space.getId() == spaceId)
+                .findFirst();
+    }
 }

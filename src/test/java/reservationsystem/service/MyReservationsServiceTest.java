@@ -18,7 +18,7 @@ class MyReservationsServiceTest {
         Reservation reservationOne = new Reservation(
                 1,
                 1,
-                "user001",
+                "student",
                 LocalDate.of(2026, 7, 8),
                 LocalTime.of(9, 0),
                 LocalTime.of(10, 0)
@@ -27,19 +27,19 @@ class MyReservationsServiceTest {
         Reservation reservationTwo = new Reservation(
                 2,
                 2,
-                "user002",
+                "admin",
                 LocalDate.of(2026, 7, 8),
                 LocalTime.of(13, 0),
                 LocalTime.of(14, 30)
         );
 
         List<Reservation> result = service.getReservationsForUser(
-                "user001",
+                "student",
                 List.of(reservationOne, reservationTwo)
         );
 
         assertEquals(1, result.size());
-        assertEquals("user001", result.get(0).getUserId());
+        assertEquals("student", result.get(0).getUserId());
     }
 
     @Test
@@ -49,14 +49,14 @@ class MyReservationsServiceTest {
         Reservation reservation = new Reservation(
                 1,
                 1,
-                "user001",
+                "student",
                 LocalDate.of(2026, 7, 8),
                 LocalTime.of(9, 0),
                 LocalTime.of(10, 0)
         );
 
         List<Reservation> result = service.getReservationsForUser(
-                "user999",
+                "admin",
                 List.of(reservation)
         );
 
@@ -71,7 +71,7 @@ class MyReservationsServiceTest {
         Reservation laterReservation = new Reservation(
                 1,
                 1,
-                "user001",
+                "student",
                 LocalDate.of(2026, 7, 9),
                 LocalTime.of(11, 0),
                 LocalTime.of(12, 0)
@@ -80,14 +80,14 @@ class MyReservationsServiceTest {
         Reservation earlierReservation = new Reservation(
                 2,
                 2,
-                "user001",
+                "student",
                 LocalDate.of(2026, 7, 8),
                 LocalTime.of(9, 0),
                 LocalTime.of(10, 0)
         );
 
         List<Reservation> result = service.getReservationsForUser(
-                "user001",
+                "student",
                 List.of(laterReservation, earlierReservation)
         );
 
@@ -95,6 +95,36 @@ class MyReservationsServiceTest {
         assertEquals(LocalTime.of(9, 0), result.get(0).getStartTime());
         assertEquals(LocalDate.of(2026, 7, 9), result.get(1).getDate());
         assertEquals(LocalTime.of(11, 0), result.get(1).getStartTime());
+    }
+
+    @Test
+    void reservationsWithMatchingDateAndStartTimeAreSortedById() {
+        MyReservationsService service = new MyReservationsService();
+
+        Reservation higherId = new Reservation(
+                8,
+                1,
+                "student",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0)
+        );
+
+        Reservation lowerId = new Reservation(
+                3,
+                2,
+                "student",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0)
+        );
+
+        List<Reservation> result = service.getReservationsForUser(
+                "student",
+                List.of(higherId, lowerId)
+        );
+
+        assertEquals(List.of(3, 8), result.stream().map(Reservation::getId).toList());
     }
 
     @Test
@@ -113,7 +143,7 @@ class MyReservationsServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.getReservationsForUser("user001", null)
+                () -> service.getReservationsForUser("student", null)
         );
     }
 }
