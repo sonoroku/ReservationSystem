@@ -19,6 +19,7 @@ Verify that a user can view space availability across an inclusive date range an
 - The committed sample reservation data is available.
 - US-6 backend date-range availability logic is implemented.
 - US-7 reserved/available styling is active.
+- The application uses `app-data/reservations.json` when that runtime file exists; otherwise it seeds the runtime file from the committed starter data.
 
 ## Scenario 1: Same-Day Date Range
 
@@ -146,7 +147,7 @@ Pass
 ### Actual Result
 
 - The reversed date range was rejected.
-- A validation message was displayed.
+- The validation message `Start date cannot be after end date` was displayed.
 - No incorrect schedule was shown.
 
 ### Status
@@ -177,7 +178,7 @@ Pass
 ### Actual Result
 
 - The over-seven-day range was rejected.
-- A validation message was displayed.
+- The validation message `Date range cannot be longer than 7 days` was displayed.
 - No incorrect schedule was shown.
 
 ### Status
@@ -272,7 +273,7 @@ Pass
 
 Pass
 
-## Scenario 9: Restored Runtime Data
+## Scenario 9: Runtime Data Remains Unchanged
 
 ### Steps
 
@@ -281,16 +282,19 @@ Pass
 3. Close the application.
 4. Launch the application again.
 5. View the same date range.
+6. Confirm that the availability-only workflow did not create, modify, or cancel any reservation.
 
 ### Expected Result
 
 - Reservation data loads correctly after restarting the application.
 - Availability results remain consistent between runs.
+- Runtime reservation data remains unchanged because this workflow is read-only.
 
 ### Actual Result
 
 - Reservation data loaded correctly after restarting the application.
 - Availability results remained consistent.
+- No reservation create, modify, or cancel action was performed, so no runtime-data restoration was required.
 
 ### Status
 
