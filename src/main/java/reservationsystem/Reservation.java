@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import reservationsystem.view.AvailabilityView;
 import reservationsystem.view.CreateReservationView;
@@ -34,7 +35,9 @@ public class Reservation extends Application {
         createReservationTab.setClosable(false);
 
         Tab myReservationsTab = new Tab("My Reservations");
-        myReservationsTab.setContent(myReservationsView);
+        ScrollPane myReservationsScrollPane = new ScrollPane(myReservationsView);
+        myReservationsScrollPane.setFitToWidth(true);
+        myReservationsTab.setContent(myReservationsScrollPane);
         myReservationsTab.setClosable(false);
 
         tabPane.getTabs().addAll(
