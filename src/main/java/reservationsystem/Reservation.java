@@ -37,7 +37,12 @@ public class Reservation extends Application {
         myReservationsTab.setContent(myReservationsView);
         myReservationsTab.setClosable(false);
 
-        tabPane.getTabs().addAll(spacesTab, availabilityTab, createReservationTab, myReservationsTab);
+        tabPane.getTabs().addAll(
+                spacesTab,
+                availabilityTab,
+                createReservationTab,
+                myReservationsTab
+        );
 
         Scene scene = new Scene(tabPane, 800, 650);
         scene.getStylesheets().add(
