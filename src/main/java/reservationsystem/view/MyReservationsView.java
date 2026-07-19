@@ -6,9 +6,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 import reservationsystem.controller.ReservationController;
 import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
+import reservationsystem.service.ReservationCancellationResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +40,9 @@ public class MyReservationsView extends VBox {
 
         Button refreshButton = new Button("Refresh");
         refreshButton.setOnAction(event -> loadReservations());
+        
+        Button cancelButton = new Button("Cancel Selected Reservation");
+        cancelButton.setOnAction(event -> cancelSelectedReservation());
 
         reservationsListView = new ListView<>();
         reservationsListView.setPrefHeight(250);
@@ -53,6 +60,7 @@ public class MyReservationsView extends VBox {
                 titleLabel,
                 loadButton,
                 refreshButton,
+                cancelButton,
                 reservationsListView,
                 statusLabel
         );
@@ -75,6 +83,41 @@ public class MyReservationsView extends VBox {
         } catch (IllegalArgumentException exception) {
             statusLabel.setText(exception.getMessage());
         }
+    }
+    
+    private void cancelSelectedReservation() {
+        Reservation selectedReservation =
+                reservationsListView.getSelectionModel().getSelectedItem();
+
+        if (selectedReservation == null) {
+            statusLabel.setText("Select a reservation before cancelling.");
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Cancel Reservation");
+        confirmation.setHeaderText(
+                "Cancel reservation " + selectedReservation.getId() + "?"
+        );
+        confirmation.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> response = confirmation.showAndWait();
+
+        if (response.isEmpty() || response.get() != ButtonType.OK) {
+            statusLabel.setText("Cancellation was not confirmed.");
+            return;
+        }
+
+        ReservationCancellationResult result =
+                reservationController.cancelReservation(
+                        selectedReservation.getId()
+                );
+
+        if (result.isSuccessful()) {
+            loadReservations();
+        }
+
+        statusLabel.setText(result.getMessage());
     }
 
     private String formatReservation(Reservation reservation) {
