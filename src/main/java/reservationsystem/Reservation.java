@@ -7,6 +7,7 @@ import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import reservationsystem.view.AvailabilityView;
 import reservationsystem.view.CreateReservationView;
+import reservationsystem.view.MyReservationsView;
 import reservationsystem.view.SpaceListView;
 
 public class Reservation extends Application {
@@ -16,6 +17,7 @@ public class Reservation extends Application {
         SpaceListView spaceListView = new SpaceListView();
         AvailabilityView availabilityView = new AvailabilityView();
         CreateReservationView createReservationView = new CreateReservationView();
+        MyReservationsView myReservationsView = new MyReservationsView();
 
         TabPane tabPane = new TabPane();
 
@@ -31,7 +33,16 @@ public class Reservation extends Application {
         createReservationTab.setContent(createReservationView.createView());
         createReservationTab.setClosable(false);
 
-        tabPane.getTabs().addAll(spacesTab, availabilityTab, createReservationTab);
+        Tab myReservationsTab = new Tab("My Reservations");
+        myReservationsTab.setContent(myReservationsView);
+        myReservationsTab.setClosable(false);
+
+        tabPane.getTabs().addAll(
+                spacesTab,
+                availabilityTab,
+                createReservationTab,
+                myReservationsTab
+        );
 
         Scene scene = new Scene(tabPane, 800, 650);
         scene.getStylesheets().add(
