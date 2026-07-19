@@ -13,7 +13,7 @@ Verify that the logged-in user can modify an owned reservation through My Reserv
 - Automated regression command: `.\mvnw.cmd test`
 - Automated regression result: 84 tests passed; 0 failures, 0 errors, and 0 skipped
 - Manual test date: July 19, 2026
-- Tester: Alex O'Rourke with Codex-guided execution
+- Tester: Alex O'Rourke
 
 ## Preconditions
 

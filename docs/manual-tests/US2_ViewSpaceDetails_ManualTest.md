@@ -9,7 +9,6 @@ As a user, I want to view the details of a selected reservable space so that I c
 - Application: ReservationSystem JavaFX app
 - Commands used to run the app: `.\mvnw.cmd javafx:run` and `.\mvnw.cmd clean javafx:run`
 - Manual tester: Alex O'Rourke
-- Test setup and documentation assistance: Codex
 - Date tested: July 17, 2026
 
 ## Test Case 1: Request Details Without Selecting a Space
