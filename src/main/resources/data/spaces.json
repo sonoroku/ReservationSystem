@@ -10,7 +10,7 @@
     "id": 2,
     "name": "Student Union Multipurpose Room",
     "building": "Student Union",
-    "capacity": 850,
+    "capacity": 450,
     "features": ["Projector", "Speakers", "Stage Area", "Flexible Seating"]
   },
   {
