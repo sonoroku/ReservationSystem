@@ -55,6 +55,25 @@ public class ReservationService {
         return ReservationValidationResult.valid();
     }
 
+    public ReservationValidationResult validateReservationUpdate(
+            Reservation updatedReservation,
+            List<Reservation> existingReservations
+    ) {
+        if (updatedReservation == null) {
+            return validateReservation(null, existingReservations);
+        }
+
+        if (existingReservations == null) {
+            return validateReservation(updatedReservation, null);
+        }
+
+        List<Reservation> otherReservations = existingReservations.stream()
+                .filter(reservation -> reservation.getId() != updatedReservation.getId())
+                .toList();
+
+        return validateReservation(updatedReservation, otherReservations);
+    }
+
     private boolean isSameSpaceAndDate(Reservation reservationOne, Reservation reservationTwo) {
         return reservationOne.getSpaceId() == reservationTwo.getSpaceId()
                 && reservationOne.getDate().equals(reservationTwo.getDate());
