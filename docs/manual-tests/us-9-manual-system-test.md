@@ -9,7 +9,7 @@ As a student, I want to view my reservations so that I can confirm the spaces an
 - Application: ReservationSystem JavaFX app
 - Command used to run app: `.\mvnw.cmd javafx:run`
 - Tester: Almondmlk
-- Date tested: [Add date]
+- Date tested: July 19, 2026
 
 ## Test Case 1: User With Existing Reservations
 
