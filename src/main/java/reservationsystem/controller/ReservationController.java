@@ -9,6 +9,7 @@ import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
 import reservationsystem.service.ReservationCancellationResult;
+import reservationsystem.service.ReservationModificationResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -143,6 +144,57 @@ public class ReservationController {
         reservationJsonRepository.saveReservations(existingReservations);
 
         return ReservationCancellationResult.success();
+    }
+
+    public ReservationModificationResult modifyReservation(
+            int reservationId,
+            int spaceId,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        List<Reservation> existingReservations = reservationJsonRepository.loadReservations();
+
+        int reservationIndex = -1;
+        for (int index = 0; index < existingReservations.size(); index++) {
+            if (existingReservations.get(index).getId() == reservationId) {
+                reservationIndex = index;
+                break;
+            }
+        }
+
+        if (reservationIndex < 0) {
+            return ReservationModificationResult.notFound();
+        }
+
+        Reservation existingReservation = existingReservations.get(reservationIndex);
+        if (!currentUserProvider.getCurrentUserId().equals(existingReservation.getUserId())) {
+            return ReservationModificationResult.notOwned();
+        }
+
+        Reservation updatedReservation = new Reservation(
+                existingReservation.getId(),
+                spaceId,
+                existingReservation.getUserId(),
+                date,
+                startTime,
+                endTime
+        );
+
+        ReservationValidationResult validationResult =
+                reservationService.validateReservationUpdate(
+                        updatedReservation,
+                        existingReservations
+                );
+
+        if (!validationResult.isValid()) {
+            return ReservationModificationResult.validationFailed(validationResult.getMessage());
+        }
+
+        existingReservations.set(reservationIndex, updatedReservation);
+        reservationJsonRepository.saveReservations(existingReservations);
+
+        return ReservationModificationResult.success();
     }
 
     private int getNextReservationId(List<Reservation> reservations) {

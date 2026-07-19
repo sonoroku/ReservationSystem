@@ -292,4 +292,127 @@ class ReservationServiceTest {
         assertFalse(result.isValid());
         assertEquals("Existing reservations cannot be null", result.getMessage());
     }
+
+    @Test
+    void unchangedReservationIsAcceptedWhenUpdatingItself() {
+        ReservationService service = new ReservationService();
+        Reservation reservation = new Reservation(
+                7,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0)
+        );
+
+        ReservationValidationResult result = service.validateReservationUpdate(
+                reservation,
+                List.of(reservation)
+        );
+
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    void updateStillRejectsConflictWithAnotherReservation() {
+        ReservationService service = new ReservationService();
+        Reservation updatedReservation = new Reservation(
+                7,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(10, 30),
+                LocalTime.of(11, 30)
+        );
+        Reservation otherReservation = new Reservation(
+                8,
+                1,
+                "user002",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0)
+        );
+
+        ReservationValidationResult result = service.validateReservationUpdate(
+                updatedReservation,
+                List.of(updatedReservation, otherReservation)
+        );
+
+        assertFalse(result.isValid());
+        assertEquals("Reservation conflicts with an existing reservation", result.getMessage());
+    }
+
+    @Test
+    void updateStillRejectsEndTimeBeforeStartTime() {
+        ReservationService service = new ReservationService();
+        Reservation updatedReservation = new Reservation(
+                7,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(11, 0),
+                LocalTime.of(10, 0)
+        );
+
+        ReservationValidationResult result = service.validateReservationUpdate(
+                updatedReservation,
+                List.of()
+        );
+
+        assertFalse(result.isValid());
+        assertEquals("End time must be after start time", result.getMessage());
+    }
+
+    @Test
+    void updateStillRejectsDurationLongerThanTwoHours() {
+        ReservationService service = new ReservationService();
+        Reservation updatedReservation = new Reservation(
+                7,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 0),
+                LocalTime.of(11, 1)
+        );
+
+        ReservationValidationResult result = service.validateReservationUpdate(
+                updatedReservation,
+                List.of()
+        );
+
+        assertFalse(result.isValid());
+        assertEquals("Reservation cannot be longer than 2 hours", result.getMessage());
+    }
+
+    @Test
+    void updateStillRejectsBufferViolationWithAnotherReservation() {
+        ReservationService service = new ReservationService();
+        Reservation updatedReservation = new Reservation(
+                7,
+                1,
+                "user001",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(10, 5),
+                LocalTime.of(11, 0)
+        );
+        Reservation otherReservation = new Reservation(
+                8,
+                1,
+                "user002",
+                LocalDate.of(2026, 7, 8),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0)
+        );
+
+        ReservationValidationResult result = service.validateReservationUpdate(
+                updatedReservation,
+                List.of(otherReservation)
+        );
+
+        assertFalse(result.isValid());
+        assertEquals(
+                "Reservation must be at least 10 minutes away from another reservation",
+                result.getMessage()
+        );
+    }
 }
