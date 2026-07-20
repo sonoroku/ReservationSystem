@@ -2,10 +2,14 @@ package reservationsystem.controller;
 
 import reservationsystem.model.Space;
 import reservationsystem.persistence.SpaceJsonRepository;
+import reservationsystem.service.SpaceFeature;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SpaceController {
@@ -53,6 +57,24 @@ public class SpaceController {
 
         List<Space> matchingSpaces = getAllSpaces().stream()
                 .filter(space -> space.getCapacity() >= minimumCapacity)
+                .toList();
+
+        return SpaceFilterResult.success(matchingSpaces);
+    }
+
+    public SpaceFilterResult filterByFeatures(Collection<SpaceFeature> selectedFeatures) {
+        if (selectedFeatures == null || selectedFeatures.isEmpty()) {
+            return SpaceFilterResult.invalid("Select at least one feature.");
+        }
+
+        if (selectedFeatures.stream().anyMatch(Objects::isNull)) {
+            return SpaceFilterResult.invalid("Selected features cannot contain null.");
+        }
+
+        EnumSet<SpaceFeature> requiredFeatures = EnumSet.copyOf(selectedFeatures);
+        List<Space> matchingSpaces = getAllSpaces().stream()
+                .filter(space -> requiredFeatures.stream()
+                        .allMatch(feature -> feature.matches(space.getFeatures())))
                 .toList();
 
         return SpaceFilterResult.success(matchingSpaces);
