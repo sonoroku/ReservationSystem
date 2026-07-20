@@ -13,9 +13,7 @@ import java.time.temporal.ChronoUnit;
 
 public class AvailabilityService {
 
-    private static final LocalTime DAY_START_TIME = LocalTime.of(8, 0);
-    private static final LocalTime DAY_END_TIME = LocalTime.of(20, 0);
-    private static final int SLOT_MINUTES = 30;
+   
     private static final int MAX_DATE_RANGE_DAYS = 7;
 
     public List<TimeSlot> getAvailabilityForDay(int spaceId, LocalDate date, List<Reservation> reservations) {
@@ -85,10 +83,12 @@ public class AvailabilityService {
     private List<TimeSlot> createDailyTimeSlots() {
         List<TimeSlot> timeSlots = new ArrayList<>();
 
-        LocalTime currentStartTime = DAY_START_TIME;
+        LocalTime currentStartTime = SchedulePolicy.DAY_START_TIME;
 
-        while (currentStartTime.isBefore(DAY_END_TIME)) {
-            LocalTime currentEndTime = currentStartTime.plusMinutes(SLOT_MINUTES);
+        while (currentStartTime.isBefore(SchedulePolicy.DAY_END_TIME)) {
+            LocalTime currentEndTime = currentStartTime.plusMinutes(
+                    SchedulePolicy.TIME_INCREMENT_MINUTES
+            );
             timeSlots.add(new TimeSlot(currentStartTime, currentEndTime));
             currentStartTime = currentEndTime;
         }
