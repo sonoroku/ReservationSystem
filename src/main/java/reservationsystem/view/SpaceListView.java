@@ -2,6 +2,7 @@ package reservationsystem.view;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -12,7 +13,9 @@ import javafx.scene.layout.VBox;
 import reservationsystem.controller.SpaceController;
 import reservationsystem.controller.SpaceFilterResult;
 import reservationsystem.model.Space;
+import reservationsystem.service.SpaceFeature;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpaceListView {
@@ -90,6 +93,44 @@ public class SpaceListView {
                 clearFilterButton
         );
 
+        Label featureFilterLabel = new Label("Features:");
+        CheckBox projectorCheckBox = createFeatureCheckBox("Projector", "projector-filter");
+        CheckBox whiteboardCheckBox = createFeatureCheckBox("Whiteboard", "whiteboard-filter");
+        CheckBox computerCheckBox = createFeatureCheckBox("Computer", "computer-filter");
+
+        Label featureFilterMessageLabel = new Label();
+        featureFilterMessageLabel.setId("feature-filter-message");
+
+        Button applyFeatureFilterButton = new Button("Apply");
+        applyFeatureFilterButton.setId("apply-feature-filter");
+        applyFeatureFilterButton.setOnAction(event -> applyFeatureFilter(
+                projectorCheckBox,
+                whiteboardCheckBox,
+                computerCheckBox,
+                tableView,
+                featureFilterMessageLabel
+        ));
+
+        Button clearFeatureFilterButton = new Button("Clear");
+        clearFeatureFilterButton.setId("clear-feature-filter");
+        clearFeatureFilterButton.setOnAction(event -> {
+            projectorCheckBox.setSelected(false);
+            whiteboardCheckBox.setSelected(false);
+            computerCheckBox.setSelected(false);
+            featureFilterMessageLabel.setText("");
+            restoreAllSpaces(tableView);
+        });
+
+        HBox featureFilterControls = new HBox(
+                5,
+                featureFilterLabel,
+                projectorCheckBox,
+                whiteboardCheckBox,
+                computerCheckBox,
+                applyFeatureFilterButton,
+                clearFeatureFilterButton
+        );
+
         Button viewDetailsButton = new Button("View Details");
         viewDetailsButton.setOnAction(event -> showSelectedSpaceDetails(
                 tableView.getSelectionModel().getSelectedItem()));
@@ -109,12 +150,48 @@ public class SpaceListView {
                 titleLabel,
                 capacityFilterControls,
                 filterMessageLabel,
+                featureFilterControls,
+                featureFilterMessageLabel,
                 tableView,
                 viewDetailsButton,
                 detailsPanel
         );
 
         return layout;
+    }
+
+    private CheckBox createFeatureCheckBox(String label, String id) {
+        CheckBox checkBox = new CheckBox(label);
+        checkBox.setId(id);
+        return checkBox;
+    }
+
+    private void applyFeatureFilter(
+            CheckBox projectorCheckBox,
+            CheckBox whiteboardCheckBox,
+            CheckBox computerCheckBox,
+            TableView<Space> tableView,
+            Label filterMessageLabel
+    ) {
+        List<SpaceFeature> selectedFeatures = new ArrayList<>();
+
+        if (projectorCheckBox.isSelected()) {
+            selectedFeatures.add(SpaceFeature.PROJECTOR);
+        }
+        if (whiteboardCheckBox.isSelected()) {
+            selectedFeatures.add(SpaceFeature.WHITEBOARD);
+        }
+        if (computerCheckBox.isSelected()) {
+            selectedFeatures.add(SpaceFeature.COMPUTER);
+        }
+
+        SpaceFilterResult result = spaceController.filterByFeatures(selectedFeatures);
+        filterMessageLabel.setText(result.message());
+
+        if (result.isValid()) {
+            tableView.setItems(FXCollections.observableArrayList(result.spaces()));
+            tableView.setPlaceholder(new Label("No spaces match the filter"));
+        }
     }
 
     private void applyCapacityFilter(
