@@ -8,8 +8,7 @@ import java.util.List;
 
 public class ReservationService {
 	
-	private static final long MAX_RESERVATION_MINUTES = 120;
-    private static final long BUFFER_MINUTES = 10;
+	
 
     public ReservationValidationResult validateReservation(
             Reservation newReservation,
@@ -36,7 +35,7 @@ public class ReservationService {
 
         long durationMinutes = Duration.between(startTime, endTime).toMinutes();
 
-        if (durationMinutes > MAX_RESERVATION_MINUTES) {
+        if (durationMinutes > SchedulePolicy.MAX_RESERVATION_MINUTES) {
             return ReservationValidationResult.invalid("Reservation cannot be longer than 2 hours");
         }
 
@@ -85,8 +84,11 @@ public class ReservationService {
     }
 
     private boolean violatesBuffer(Reservation newReservation, Reservation existingReservation) {
-        LocalTime bufferedStart = existingReservation.getStartTime().minusMinutes(BUFFER_MINUTES);
-        LocalTime bufferedEnd = existingReservation.getEndTime().plusMinutes(BUFFER_MINUTES);
+    	LocalTime bufferedStart = existingReservation.getStartTime()
+    	        .minusMinutes(SchedulePolicy.BUFFER_MINUTES);
+
+    	LocalTime bufferedEnd = existingReservation.getEndTime()
+    	        .plusMinutes(SchedulePolicy.BUFFER_MINUTES);
 
         return newReservation.getStartTime().isBefore(bufferedEnd)
                 && bufferedStart.isBefore(newReservation.getEndTime());
