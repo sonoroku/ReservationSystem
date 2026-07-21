@@ -103,9 +103,24 @@ public class CreateReservationView {
         suggestionsListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, selectedSuggestion) -> {
                     if (selectedSuggestion != null) {
-                        populateTimesFromSuggestion(selectedSuggestion);
+                        populateReservationFields(
+                                spaceComboBox.getValue(),
+                                datePicker.getValue(),
+                                selectedSuggestion.getStartTime(),
+                                selectedSuggestion.getEndTime()
+                        );
                     }
                 }
+        );
+
+        spaceComboBox.valueProperty().addListener(
+                (observable, oldValue, newValue) -> clearSuggestions()
+        );
+        datePicker.valueProperty().addListener(
+                (observable, oldValue, newValue) -> clearSuggestions()
+        );
+        durationMinutesField.textProperty().addListener(
+                (observable, oldValue, newValue) -> clearSuggestions()
         );
 
         Button submitButton = new Button("Create Reservation");
@@ -214,10 +229,22 @@ public class CreateReservationView {
         }
     }
 
-    private void populateTimesFromSuggestion(TimeSlot suggestion) {
-        startTimeField.setText(suggestion.getStartTime().toString());
-        endTimeField.setText(suggestion.getEndTime().toString());
+    public void populateReservationFields(
+            Space space,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        spaceComboBox.setValue(space);
+        datePicker.setValue(date);
+        startTimeField.setText(startTime.toString());
+        endTimeField.setText(endTime.toString());
         messageLabel.setText("Suggested time selected. Review the times, then create the reservation.");
+    }
+
+    private void clearSuggestions() {
+        suggestionsListView.getItems().clear();
+        suggestionsListView.getSelectionModel().clearSelection();
     }
 
     private void createReservation() {
