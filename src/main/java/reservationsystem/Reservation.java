@@ -10,6 +10,7 @@ import reservationsystem.view.AvailabilityView;
 import reservationsystem.view.CreateReservationView;
 import reservationsystem.view.MyReservationsView;
 import reservationsystem.view.SpaceListView;
+import reservationsystem.view.RegistrationView;
 
 public class Reservation extends Application {
 
@@ -19,6 +20,7 @@ public class Reservation extends Application {
         AvailabilityView availabilityView = new AvailabilityView();
         CreateReservationView createReservationView = new CreateReservationView();
         MyReservationsView myReservationsView = new MyReservationsView();
+        RegistrationView registrationView = new RegistrationView();
 
         TabPane tabPane = new TabPane();
 
@@ -39,12 +41,17 @@ public class Reservation extends Application {
         myReservationsScrollPane.setFitToWidth(true);
         myReservationsTab.setContent(myReservationsScrollPane);
         myReservationsTab.setClosable(false);
+        
+        Tab registrationTab = new Tab("Register");
+        registrationTab.setContent(registrationView.createView());
+        registrationTab.setClosable(false);
 
         tabPane.getTabs().addAll(
-                spacesTab,
-                availabilityTab,
-                createReservationTab,
-                myReservationsTab
+        spacesTab,
+        availabilityTab,
+        createReservationTab,
+        myReservationsTab,
+        registrationTab
         );
 
         Scene scene = new Scene(tabPane, 800, 650);
