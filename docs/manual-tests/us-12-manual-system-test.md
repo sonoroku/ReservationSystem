@@ -9,7 +9,26 @@ As a student, I want the system to suggest available reservation times so that I
 - Application: ReservationSystem JavaFX app
 - Command used to run app: `.\mvnw.cmd javafx:run`
 - Tester: Almondmlk
-- Date tested: [Add date]
+- Test date: Not recorded
+- Results submitted: July 21, 2026
+- Environment: Windows using the Maven Wrapper and JavaFX application
+- Test data: Sample data from `src/main/resources/data`
+
+The original test notes did not include the exact inputs. Use the inputs below
+to run the tests again.
+
+## Inputs for Running the Tests Again
+
+- Open-slot cases: space 4 (Odum Library Study Room), July 9, 2026, 60 minutes
+- Partial-availability and buffer cases: space 1, July 8, 2026, 60 minutes;
+  the committed reservation is 9:00 AM-10:00 AM
+- Opening/closing boundary cases: space 4, July 9, 2026, 120 minutes
+- Invalid-duration cases: blank input and `abc`
+- Before running these tests, delete `app-data/reservations.json`. The app will
+  recreate it from the sample reservation data.
+- No-valid-time case: update the runtime reservation file so space 1 is reserved
+  from 8:00 AM-8:00 PM on July 8, 2026. Delete the runtime file after testing
+  to reset it from the sample data.
 
 ## Test Case 1: Suggest Times With Available Slots
 

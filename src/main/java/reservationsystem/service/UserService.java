@@ -48,7 +48,19 @@ public class UserService {
             );
         }
 
-        String normalizedUsername = username.trim();
+        try {
+            return registerValidatedUser(username.trim(), password);
+        } catch (IllegalStateException exception) {
+            return RegistrationResult.failure(
+                    "Unable to register account. Please try again."
+            );
+        }
+    }
+
+    private RegistrationResult registerValidatedUser(
+            String normalizedUsername,
+            String password
+    ) {
         List<User> existingUsers = userJsonRepository.loadUsers();
 
         boolean usernameExists = existingUsers.stream()
