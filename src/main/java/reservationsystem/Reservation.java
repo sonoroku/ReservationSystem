@@ -11,6 +11,8 @@ import reservationsystem.view.CreateReservationView;
 import reservationsystem.view.MyReservationsView;
 import reservationsystem.view.SpaceListView;
 import reservationsystem.view.RegistrationView;
+import reservationsystem.service.AuthenticationNavigation;
+import reservationsystem.service.UserService;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,12 +30,14 @@ public class Reservation extends Application {
 	
 	private Stage primaryStage;
 	private AuthenticationController authenticationController;
+	private AuthenticationNavigation authenticationNavigation;
 	private AuthorizationService authorizationService;
 
     @Override
     public void start(Stage stage) {
     	primaryStage = stage;
     	authenticationController = new AuthenticationController();
+		authenticationNavigation = new AuthenticationNavigation();
         authorizationService =
                 new AuthorizationService(authenticationController);
 
@@ -54,8 +58,6 @@ public class Reservation extends Application {
                 );
         MyReservationsView myReservationsView =
                 new MyReservationsView(reservationController);
-        RegistrationView registrationView = new RegistrationView();
-
         TabPane tabPane = new TabPane();
 
         Tab spacesTab = new Tab("Spaces");
@@ -75,17 +77,12 @@ public class Reservation extends Application {
         myReservationsScrollPane.setFitToWidth(true);
         myReservationsTab.setContent(myReservationsScrollPane);
         myReservationsTab.setClosable(false);
-
-        Tab registrationTab = new Tab("Register");
-        registrationTab.setContent(registrationView.createView());
-        registrationTab.setClosable(false);
-
+        
         tabPane.getTabs().addAll(
         spacesTab,
         availabilityTab,
         createReservationTab,
-        myReservationsTab,
-        registrationTab
+        myReservationsTab
         );
 
         BorderPane mainLayout = new BorderPane();
@@ -134,7 +131,9 @@ public class Reservation extends Application {
     private void showLoginScreen() {
         LoginView loginView = new LoginView(
                 authenticationController,
-                this::showMainApplication
+                this::showMainApplication,
+                this::showRegistrationScreen,
+                authenticationNavigation.getLoginMessage()
         );
 
         Scene loginScene = new Scene(
@@ -158,6 +157,46 @@ public class Reservation extends Application {
         primaryStage.centerOnScreen();
     }
 
+    private void showRegistrationScreen() {
+        authenticationNavigation.openRegistration();
+
+        RegistrationView registrationView = new RegistrationView(
+                new UserService(),
+                this::completeRegistration,
+                this::cancelRegistration
+        );
+
+        Scene registrationScene = new Scene(
+                registrationView.createView(),
+                500,
+                500
+        );
+
+        java.net.URL stylesheet =
+                getClass().getResource(
+                        "/availability-styles.css"
+                );
+
+        if (stylesheet != null) {
+            registrationScene.getStylesheets().add(
+                    stylesheet.toExternalForm()
+            );
+        }
+
+        primaryStage.setScene(registrationScene);
+        primaryStage.centerOnScreen();
+    }
+
+    private void completeRegistration() {
+        authenticationNavigation.completeRegistration();
+        showLoginScreen();
+    }
+
+    private void cancelRegistration() {
+        authenticationNavigation.returnToLogin();
+        showLoginScreen();
+    }
+
     private void showMainApplication() {
         if (!authenticationController.isLoggedIn()) {
             showLoginScreen();
@@ -170,6 +209,7 @@ public class Reservation extends Application {
 
     private void logout() {
         authenticationController.logout();
+		authenticationNavigation.returnToLogin();
         showLoginScreen();
     }
 
