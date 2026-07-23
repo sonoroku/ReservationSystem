@@ -19,6 +19,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import reservationsystem.controller.AuthenticationController;
+import reservationsystem.controller.ReservationController;
+import reservationsystem.controller.SpaceController;
 import reservationsystem.view.LoginView;
 
 public class Reservation extends Application {
@@ -32,10 +34,17 @@ public class Reservation extends Application {
     public void start(Stage stage) {
     	primaryStage = stage;
     	authenticationController = new AuthenticationController();
+        ReservationController reservationController =
+                new ReservationController(authenticationController);
         SpaceListView spaceListView = new SpaceListView();
         AvailabilityView availabilityView = new AvailabilityView();
-        CreateReservationView createReservationView = new CreateReservationView();
-        MyReservationsView myReservationsView = new MyReservationsView();
+        CreateReservationView createReservationView =
+                new CreateReservationView(
+                        new SpaceController(),
+                        reservationController
+                );
+        MyReservationsView myReservationsView =
+                new MyReservationsView(reservationController);
         RegistrationView registrationView = new RegistrationView();
 
         TabPane tabPane = new TabPane();

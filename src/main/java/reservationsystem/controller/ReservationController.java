@@ -35,6 +35,16 @@ public class ReservationController {
         );
     }
 
+    public ReservationController(CurrentUserProvider currentUserProvider) {
+        this(
+                new ReservationJsonRepository(),
+                new ReservationService(),
+                currentUserProvider,
+                new MyReservationsService(),
+                new SpaceController()
+        );
+    }
+
     public ReservationController(
             ReservationJsonRepository reservationJsonRepository,
             ReservationService reservationService
