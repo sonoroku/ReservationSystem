@@ -12,14 +12,44 @@ import reservationsystem.view.MyReservationsView;
 import reservationsystem.view.SpaceListView;
 import reservationsystem.view.RegistrationView;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import reservationsystem.controller.AuthenticationController;
+import reservationsystem.controller.ReservationController;
+import reservationsystem.controller.SpaceController;
+import reservationsystem.view.LoginView;
+
 public class Reservation extends Application {
+	
+	private Stage primaryStage;
+	private AuthenticationController authenticationController;
 
     @Override
     public void start(Stage stage) {
+    	primaryStage = stage;
+    	authenticationController = new AuthenticationController();
+
+        stage.setTitle("Reservation System");
+        showLoginScreen();
+        stage.show();
+    }
+
+    private Scene createMainScene() {
+        ReservationController reservationController =
+                new ReservationController(authenticationController);
         SpaceListView spaceListView = new SpaceListView();
         AvailabilityView availabilityView = new AvailabilityView();
-        CreateReservationView createReservationView = new CreateReservationView();
-        MyReservationsView myReservationsView = new MyReservationsView();
+        CreateReservationView createReservationView =
+                new CreateReservationView(
+                        new SpaceController(),
+                        reservationController
+                );
+        MyReservationsView myReservationsView =
+                new MyReservationsView(reservationController);
         RegistrationView registrationView = new RegistrationView();
 
         TabPane tabPane = new TabPane();
@@ -54,14 +84,84 @@ public class Reservation extends Application {
         registrationTab
         );
 
-        Scene scene = new Scene(tabPane, 800, 650);
-        scene.getStylesheets().add(
-                getClass().getResource("/availability-styles.css").toExternalForm()
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setTop(createSessionBar());
+        mainLayout.setCenter(tabPane);
+
+        Scene mainScene = new Scene(mainLayout, 800, 650);
+        mainScene.getStylesheets().add(
+                getClass()
+                        .getResource("/availability-styles.css")
+                        .toExternalForm()
         );
 
-        stage.setTitle("Reservation System");
-        stage.setScene(scene);
-        stage.show();
+        return mainScene;
+    }
+    
+    private HBox createSessionBar() {
+        Label currentUserLabel = new Label(
+                "Logged in as: "
+                        + authenticationController
+                                .getCurrentUser()
+                                .getUsername()
+        );
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.setId("logoutButton");
+        logoutButton.setOnAction(event -> logout());
+
+        HBox sessionBar = new HBox(
+                12,
+                currentUserLabel,
+                logoutButton
+        );
+
+        sessionBar.setAlignment(Pos.CENTER_RIGHT);
+        sessionBar.setPadding(new Insets(10));
+
+        return sessionBar;
+    }
+
+    private void showLoginScreen() {
+        LoginView loginView = new LoginView(
+                authenticationController,
+                this::showMainApplication
+        );
+
+        Scene loginScene = new Scene(
+                loginView.createView(),
+                500,
+                400
+        );
+
+        java.net.URL stylesheet =
+                getClass().getResource(
+                        "/availability-styles.css"
+                );
+
+        if (stylesheet != null) {
+            loginScene.getStylesheets().add(
+                    stylesheet.toExternalForm()
+            );
+        }
+
+        primaryStage.setScene(loginScene);
+        primaryStage.centerOnScreen();
+    }
+
+    private void showMainApplication() {
+        if (!authenticationController.isLoggedIn()) {
+            showLoginScreen();
+            return;
+        }
+
+        primaryStage.setScene(createMainScene());
+        primaryStage.centerOnScreen();
+    }
+
+    private void logout() {
+        authenticationController.logout();
+        showLoginScreen();
     }
 
     public static void main(String[] args) {
