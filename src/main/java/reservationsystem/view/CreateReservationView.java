@@ -36,14 +36,6 @@ public class CreateReservationView {
     private final ListView<TimeSlot> suggestionsListView;
     private final Label messageLabel;
 
-    public CreateReservationView() {
-        this(
-                new SpaceController(),
-                new ReservationController(),
-                new TimeSuggestionController()
-        );
-    }
-
     public CreateReservationView(
             SpaceController spaceController,
             ReservationController reservationController

@@ -11,6 +11,7 @@ import java.util.List;
 public class TimeSuggestionService {
 	
 	private static final int SUGGESTION_RESERVATION_ID = -1;
+	private static final String SUGGESTION_USER_ID = "time-suggestion";
 
     private final ReservationService reservationService;
 
@@ -58,7 +59,7 @@ public class TimeSuggestionService {
             Reservation candidateReservation = new Reservation(
                     SUGGESTION_RESERVATION_ID,
                     spaceId,
-                    DefaultUserProvider.DEFAULT_USER_ID,
+                    SUGGESTION_USER_ID,
                     date,
                     candidateStart,
                     candidateEnd

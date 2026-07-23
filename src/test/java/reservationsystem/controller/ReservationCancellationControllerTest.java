@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
-import reservationsystem.service.CurrentUserProvider;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationCancellationResult;
 import reservationsystem.service.ReservationService;
@@ -18,6 +16,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReservationCancellationControllerTest {
+
+    private static final String CURRENT_USER_ID = "student";
 	
 	@TempDir
     Path tempDirectory;
@@ -87,7 +87,7 @@ public class ReservationCancellationControllerTest {
         return new ReservationController(
                 repository,
                 new ReservationService(),
-                new DefaultUserProvider(),
+                () -> CURRENT_USER_ID,
                 new MyReservationsService(),
                 new SpaceController()
         );

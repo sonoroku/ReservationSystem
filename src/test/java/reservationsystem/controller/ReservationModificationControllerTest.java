@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationModificationResult;
 import reservationsystem.service.ReservationService;
@@ -20,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReservationModificationControllerTest {
 
+    private static final String CURRENT_USER_ID = "student";
+
     @TempDir
     Path tempDirectory;
 
@@ -27,7 +28,7 @@ class ReservationModificationControllerTest {
     void modifiesOwnedReservationAndPreservesIdentity() {
         ReservationJsonRepository repository = createRepository("modified-reservation.json");
         repository.saveReservations(List.of(
-                reservation(4, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10)
+                reservation(4, 1, CURRENT_USER_ID, 9, 10)
         ));
 
         ReservationModificationResult result = createController(repository).modifyReservation(
@@ -43,7 +44,7 @@ class ReservationModificationControllerTest {
 
         Reservation savedReservation = repository.loadReservations().get(0);
         assertEquals(4, savedReservation.getId());
-        assertEquals(DefaultUserProvider.DEFAULT_USER_ID, savedReservation.getUserId());
+        assertEquals(CURRENT_USER_ID, savedReservation.getUserId());
         assertEquals(2, savedReservation.getSpaceId());
         assertEquals(LocalDate.of(2026, 7, 9), savedReservation.getDate());
         assertEquals(LocalTime.of(13, 0), savedReservation.getStartTime());
@@ -54,7 +55,7 @@ class ReservationModificationControllerTest {
     void unchangedOwnedReservationIsAccepted() {
         ReservationJsonRepository repository = createRepository("unchanged-reservation.json");
         repository.saveReservations(List.of(
-                reservation(4, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10)
+                reservation(4, 1, CURRENT_USER_ID, 9, 10)
         ));
 
         ReservationModificationResult result = createController(repository).modifyReservation(
@@ -72,7 +73,7 @@ class ReservationModificationControllerTest {
     void modifiesOnlyTimesWhenOtherValuesAreUnchanged() {
         ReservationJsonRepository repository = createRepository("partial-modification.json");
         repository.saveReservations(List.of(
-                reservation(4, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10)
+                reservation(4, 1, CURRENT_USER_ID, 9, 10)
         ));
 
         ReservationModificationResult result = createController(repository).modifyReservation(
@@ -96,7 +97,7 @@ class ReservationModificationControllerTest {
     void missingReservationReturnsNotFoundWithoutChangingPersistence() {
         ReservationJsonRepository repository = createRepository("missing-reservation.json");
         repository.saveReservations(List.of(
-                reservation(4, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10)
+                reservation(4, 1, CURRENT_USER_ID, 9, 10)
         ));
 
         ReservationModificationResult result = createController(repository).modifyReservation(
@@ -138,7 +139,7 @@ class ReservationModificationControllerTest {
         Reservation originalReservation = reservation(
                 4,
                 1,
-                DefaultUserProvider.DEFAULT_USER_ID,
+                CURRENT_USER_ID,
                 9,
                 10
         );
@@ -167,7 +168,7 @@ class ReservationModificationControllerTest {
     void conflictingUpdateIsRejectedAtomically() {
         ReservationJsonRepository repository = createRepository("conflicting-reservation.json");
         repository.saveReservations(List.of(
-                reservation(4, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10),
+                reservation(4, 1, CURRENT_USER_ID, 9, 10),
                 reservation(5, 1, "admin", 11, 12)
         ));
 
@@ -191,7 +192,7 @@ class ReservationModificationControllerTest {
         return new ReservationController(
                 repository,
                 new ReservationService(),
-                new DefaultUserProvider(),
+                () -> CURRENT_USER_ID,
                 new MyReservationsService(),
                 new SpaceController()
         );

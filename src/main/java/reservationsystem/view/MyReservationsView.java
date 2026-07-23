@@ -38,10 +38,6 @@ public class MyReservationsView extends VBox {
     private final TextField modificationEndTimeField;
     private int reservationBeingModifiedId;
 
-    public MyReservationsView() {
-        this(new ReservationController(), new SpaceController());
-    }
-
     public MyReservationsView(ReservationController reservationController) {
         this(reservationController, new SpaceController());
     }

@@ -23,6 +23,7 @@ import javafx.scene.layout.HBox;
 import reservationsystem.controller.AuthenticationController;
 import reservationsystem.controller.ReservationController;
 import reservationsystem.controller.SpaceController;
+import reservationsystem.service.AuthorizationService;
 import reservationsystem.view.LoginView;
 
 public class Reservation extends Application {
@@ -30,12 +31,15 @@ public class Reservation extends Application {
 	private Stage primaryStage;
 	private AuthenticationController authenticationController;
 	private AuthenticationNavigation authenticationNavigation;
+	private AuthorizationService authorizationService;
 
     @Override
     public void start(Stage stage) {
     	primaryStage = stage;
     	authenticationController = new AuthenticationController();
 		authenticationNavigation = new AuthenticationNavigation();
+        authorizationService =
+                new AuthorizationService(authenticationController);
 
         stage.setTitle("Reservation System");
         showLoginScreen();
@@ -101,6 +105,11 @@ public class Reservation extends Application {
                         + authenticationController
                                 .getCurrentUser()
                                 .getUsername()
+                        + " ("
+                        + (authorizationService.isCurrentUserAdmin()
+                                ? "Administrator"
+                                : "Regular User")
+                        + ")"
         );
 
         Button logoutButton = new Button("Logout");
