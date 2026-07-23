@@ -8,7 +8,6 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.persistence.SpaceJsonRepository;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationService;
 
@@ -21,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class US9MyReservationsIntegrationTest {
+
+    private static final String CURRENT_USER_ID = "student";
 
     @TempDir
     Path tempDirectory;
@@ -41,7 +42,7 @@ class US9MyReservationsIntegrationTest {
 
         assertEquals(List.of(3, 5, 4), reservations.stream().map(Reservation::getId).toList());
         assertTrue(reservations.stream().allMatch(
-                reservation -> DefaultUserProvider.DEFAULT_USER_ID.equals(reservation.getUserId())
+                reservation -> CURRENT_USER_ID.equals(reservation.getUserId())
         ));
 
         Space space = controller.getSpaceForReservation(reservations.get(0)).orElseThrow();
@@ -63,7 +64,7 @@ class US9MyReservationsIntegrationTest {
         return new ReservationController(
                 repository,
                 new ReservationService(),
-                new DefaultUserProvider(),
+                () -> CURRENT_USER_ID,
                 new MyReservationsService(),
                 new SpaceController(new SpaceJsonRepository())
         );

@@ -9,7 +9,6 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.TimeSlot;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.AvailabilityService;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationCancellationResult;
 import reservationsystem.service.ReservationService;
@@ -22,6 +21,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class US10CancelReservationIntegrationTest {
+
+    private static final String CURRENT_USER_ID = "student";
 	
 	@TempDir
     Path tempDirectory;
@@ -30,7 +31,7 @@ public class US10CancelReservationIntegrationTest {
     void cancellingOwnedReservationRemovesItFromPersistenceAndReleasesAvailability() {
         ReservationJsonRepository repository = createRepository("cancel-owned-reservation.json");
         repository.saveReservations(List.of(
-                reservation(1, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10),
+                reservation(1, 1, CURRENT_USER_ID, 9, 10),
                 reservation(2, 1, "admin", 13, 14)
         ));
 
@@ -66,7 +67,7 @@ public class US10CancelReservationIntegrationTest {
     void cancellingMissingReservationDoesNotChangePersistence() {
         ReservationJsonRepository repository = createRepository("cancel-missing-reservation.json");
         repository.saveReservations(List.of(
-                reservation(1, 1, DefaultUserProvider.DEFAULT_USER_ID, 9, 10),
+                reservation(1, 1, CURRENT_USER_ID, 9, 10),
                 reservation(2, 2, "admin", 13, 14)
         ));
 
@@ -87,7 +88,7 @@ public class US10CancelReservationIntegrationTest {
         ReservationJsonRepository repository = createRepository("cancel-not-owned-reservation.json");
         repository.saveReservations(List.of(
                 reservation(1, 1, "admin", 9, 10),
-                reservation(2, 2, DefaultUserProvider.DEFAULT_USER_ID, 13, 14)
+                reservation(2, 2, CURRENT_USER_ID, 13, 14)
         ));
 
         ReservationController reservationController = createReservationController(repository);
@@ -106,7 +107,7 @@ public class US10CancelReservationIntegrationTest {
         return new ReservationController(
                 repository,
                 new ReservationService(),
-                new DefaultUserProvider(),
+                () -> CURRENT_USER_ID,
                 new MyReservationsService(),
                 new SpaceController()
         );
