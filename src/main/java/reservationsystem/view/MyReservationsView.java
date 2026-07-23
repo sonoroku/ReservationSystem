@@ -266,6 +266,20 @@ public class MyReservationsView extends VBox {
         modificationForm.setVisible(false);
     }
 
+    public void resetForSessionChange() {
+        reservationsListView.getItems().clear();
+        reservationsListView.getSelectionModel().clearSelection();
+        modificationSpaceComboBox.setValue(null);
+        modificationDatePicker.setValue(null);
+        modificationStartTimeField.clear();
+        modificationEndTimeField.clear();
+        reservationBeingModifiedId = 0;
+        hideModificationForm();
+        statusLabel.setText(
+                "Click View My Reservations to load your reservations."
+        );
+    }
+
     private String formatReservation(Reservation reservation) {
         Optional<Space> space = reservationController.getSpaceForReservation(reservation);
         String spaceDescription = space

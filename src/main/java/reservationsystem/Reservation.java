@@ -29,6 +29,7 @@ public class Reservation extends Application {
 	private Scene mainScene;
 	private Label currentUserLabel;
 	private AuthenticationController authenticationController;
+	private MyReservationsView myReservationsView;
 
     @Override
     public void start(Stage stage) {
@@ -43,8 +44,7 @@ public class Reservation extends Application {
                         new SpaceController(),
                         reservationController
                 );
-        MyReservationsView myReservationsView =
-                new MyReservationsView(reservationController);
+        myReservationsView = new MyReservationsView(reservationController);
         RegistrationView registrationView = new RegistrationView();
 
         TabPane tabPane = new TabPane();
@@ -159,6 +159,8 @@ public class Reservation extends Application {
     }
 
     private void logout() {
+        myReservationsView.resetForSessionChange();
+        currentUserLabel.setText("");
         authenticationController.logout();
         showLoginScreen();
     }
