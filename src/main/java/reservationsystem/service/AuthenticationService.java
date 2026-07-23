@@ -8,6 +8,8 @@ public class AuthenticationService {
     private User currentUser;
 
     public AuthenticationResult login(String username, String password, List<User> savedUsers) {
+        currentUser = null;
+
         if (username == null || username.isBlank()) {
             return AuthenticationResult.failure("Username is required");
         }
@@ -21,7 +23,7 @@ public class AuthenticationService {
         }
 
         for (User user : savedUsers) {
-            if (user.getUsername().equals(username.trim())
+            if (user.getUsername().equalsIgnoreCase(username.trim())
                     && user.getPassword().equals(password)) {
                 currentUser = user;
                 return AuthenticationResult.success(user);

@@ -161,6 +161,39 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    void usernameMatchingIgnoresCase() {
+        AuthenticationService service = new AuthenticationService();
+        User user = new User("Student", "password123", false);
+
+        AuthenticationResult result = service.login(
+                "student",
+                "password123",
+                List.of(user)
+        );
+
+        assertTrue(result.isSuccessful());
+        assertEquals(user, service.getCurrentUser());
+    }
+
+    @Test
+    void failedLoginClearsPreviousSession() {
+        AuthenticationService service = new AuthenticationService();
+        User user = new User("user001", "password123", false);
+
+        service.login("user001", "password123", List.of(user));
+
+        AuthenticationResult result = service.login(
+                "user001",
+                "wrongpassword",
+                List.of(user)
+        );
+
+        assertFalse(result.isSuccessful());
+        assertNull(service.getCurrentUser());
+        assertFalse(service.isLoggedIn());
+    }
+
+    @Test
     void logoutClearsCurrentUser() {
         AuthenticationService service = new AuthenticationService();
 

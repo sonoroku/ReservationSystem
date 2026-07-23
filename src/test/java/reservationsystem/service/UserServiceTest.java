@@ -126,6 +126,34 @@ public class UserServiceTest {
         assertFalse(repository.wasSaved());
     }
 
+    @Test
+    void registerUserReturnsControlledErrorWhenLoadingFails() {
+        UserService service = new UserService(
+                new FailingUserJsonRepository(true));
+
+        RegistrationResult result =
+                service.registerUser("newstudent", "secret1");
+
+        assertFalse(result.isSuccessful());
+        assertEquals(
+                "Unable to register account. Please try again.",
+                result.getMessage());
+    }
+
+    @Test
+    void registerUserReturnsControlledErrorWhenSavingFails() {
+        UserService service = new UserService(
+                new FailingUserJsonRepository(false));
+
+        RegistrationResult result =
+                service.registerUser("newstudent", "secret1");
+
+        assertFalse(result.isSuccessful());
+        assertEquals(
+                "Unable to register account. Please try again.",
+                result.getMessage());
+    }
+
     private static class FakeUserJsonRepository
             extends UserJsonRepository {
 
@@ -152,6 +180,29 @@ public class UserServiceTest {
 
         List<User> getSavedUsers() {
             return savedUsers;
+        }
+    }
+
+    private static class FailingUserJsonRepository
+            extends UserJsonRepository {
+
+        private final boolean failOnLoad;
+
+        FailingUserJsonRepository(boolean failOnLoad) {
+            this.failOnLoad = failOnLoad;
+        }
+
+        @Override
+        public List<User> loadUsers() {
+            if (failOnLoad) {
+                throw new IllegalStateException("Load failed");
+            }
+            return List.of();
+        }
+
+        @Override
+        public void saveUsers(List<User> users) {
+            throw new IllegalStateException("Save failed");
         }
     }
 

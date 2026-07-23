@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,19 +23,30 @@ public class UserJsonRepository {
 
     private static final String USERS_RESOURCE_PATH = "/data/users.json";
 
-    private static final Path USERS_RUNTIME_FILE_PATH =
+    private static final Path DEFAULT_USERS_RUNTIME_FILE_PATH =
             Path.of("app-data", "users.json");
 
     private final Gson gson;
+    private final Path usersRuntimeFilePath;
 
     public UserJsonRepository() {
+        this(DEFAULT_USERS_RUNTIME_FILE_PATH);
+    }
+
+    UserJsonRepository(Path usersRuntimeFilePath) {
+        if (usersRuntimeFilePath == null) {
+            throw new IllegalArgumentException(
+                    "Users runtime file path cannot be null.");
+        }
+
+        this.usersRuntimeFilePath = usersRuntimeFilePath;
         gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .create();
     }
 
     public List<User> loadUsers() {
-        if (Files.exists(USERS_RUNTIME_FILE_PATH)) {
+        if (Files.exists(usersRuntimeFilePath)) {
             return loadUsersFromRuntimeFile();
         }
 
@@ -48,34 +61,69 @@ public class UserJsonRepository {
             throw new IllegalArgumentException("Users list cannot be null.");
         }
 
+        JsonArray usersJson = convertUsersToJson(users);
+        Path temporaryFile = null;
+
         try {
-            Path parentDirectory = USERS_RUNTIME_FILE_PATH.getParent();
+            Path destination = usersRuntimeFilePath.toAbsolutePath();
+            Path parentDirectory = destination.getParent();
 
             if (parentDirectory != null) {
                 Files.createDirectories(parentDirectory);
             }
 
-            try (Writer writer = Files.newBufferedWriter(
-                    USERS_RUNTIME_FILE_PATH,
-                    StandardCharsets.UTF_8)) {
+            temporaryFile = Files.createTempFile(
+                    parentDirectory,
+                    "users-",
+                    ".tmp");
 
-                JsonArray usersJson = convertUsersToJson(users);
+            try (Writer writer = Files.newBufferedWriter(
+                    temporaryFile,
+                    StandardCharsets.UTF_8)) {
                 gson.toJson(usersJson, writer);
             }
+
+            replaceRuntimeFile(temporaryFile, destination);
+            temporaryFile = null;
         } catch (IOException exception) {
             throw new IllegalStateException(
                     "Unable to save users to runtime JSON.",
                     exception);
+        } finally {
+            if (temporaryFile != null) {
+                try {
+                    Files.deleteIfExists(temporaryFile);
+                } catch (IOException ignored) {
+                    // Preserve the original write failure.
+                }
+            }
+        }
+    }
+
+    private void replaceRuntimeFile(
+            Path temporaryFile,
+            Path destination) throws IOException {
+        try {
+            Files.move(
+                    temporaryFile,
+                    destination,
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException exception) {
+            Files.move(
+                    temporaryFile,
+                    destination,
+                    StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
     private List<User> loadUsersFromRuntimeFile() {
         try (Reader reader = Files.newBufferedReader(
-                USERS_RUNTIME_FILE_PATH,
+                usersRuntimeFilePath,
                 StandardCharsets.UTF_8)) {
 
             return readUsers(reader);
-        } catch (IOException exception) {
+        } catch (IOException | RuntimeException exception) {
             throw new IllegalStateException(
                     "Unable to load users from runtime JSON.",
                     exception);
@@ -88,7 +136,7 @@ public class UserJsonRepository {
                 StandardCharsets.UTF_8)) {
 
             return readUsers(reader);
-        } catch (IOException exception) {
+        } catch (IOException | RuntimeException exception) {
             throw new IllegalStateException(
                     "Unable to load starter users JSON.",
                     exception);
@@ -152,6 +200,18 @@ public class UserJsonRepository {
             if (user == null) {
                 throw new IllegalArgumentException(
                         "Users list cannot contain null values.");
+            }
+
+            if (user.getUsername() == null
+                    || user.getUsername().isBlank()) {
+                throw new IllegalArgumentException(
+                        "Usernames cannot be null or blank.");
+            }
+
+            if (user.getPassword() == null
+                    || user.getPassword().isBlank()) {
+                throw new IllegalArgumentException(
+                        "Passwords cannot be null or blank.");
             }
 
             JsonObject userJson = new JsonObject();
