@@ -9,46 +9,35 @@ As a student, I want the system to suggest available reservation times so that I
 - Application: ReservationSystem JavaFX app
 - Command used to run app: `.\mvnw.cmd javafx:run`
 - Tester: Almondmlk
-- Test date: Not recorded
-- Results submitted: July 21, 2026
-- Environment: Windows using the Maven Wrapper and JavaFX application
-- Test data: Sample data from `src/main/resources/data`
-
-The original test notes did not include the exact inputs. Use the inputs below
-to run the tests again.
-
-## Inputs for Running the Tests Again
-
-- Open-slot cases: space 4 (Odum Library Study Room), July 9, 2026, 60 minutes
-- Partial-availability and buffer cases: space 1, July 8, 2026, 60 minutes;
-  the committed reservation is 9:00 AM-10:00 AM
-- Opening/closing boundary cases: space 4, July 9, 2026, 120 minutes
-- Invalid-duration cases: blank input and `abc`
-- Before running these tests, delete `app-data/reservations.json`. The app will
-  recreate it from the sample reservation data.
-- No-valid-time case: update the runtime reservation file so space 1 is reserved
-  from 8:00 AM-8:00 PM on July 8, 2026. Delete the runtime file after testing
-  to reset it from the sample data.
+- Date tested: July 22, 2026
+- Tested branch: main
+- Tested commit/SHA: ceaf2b5
 
 ## Test Case 1: Suggest Times With Available Slots
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter a valid duration in minutes.
-6. Click Suggest Times.
-7. Observe the suggested time list.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Observed the suggested available times.
 
 ### Expected Result
 
-The application displays available time suggestions in chronological order.
+The application displays available 60-minute time suggestions in chronological order.
 
 ### Actual Result
 
-The application displayed available time suggestions in chronological order.
+The application displayed available 60-minute suggestions in chronological order, including `08:00 - 09:00`, `08:30 - 09:30`, `09:00 - 10:00`, `09:30 - 10:30`, `10:00 - 11:00`, and `10:30 - 11:30`.
 
 ### Status
 
@@ -56,15 +45,23 @@ Pass
 
 ## Test Case 2: Selecting a Suggested Time Populates Start and End Fields
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+- Selected suggestion: 09:00 - 10:00
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter a valid duration in minutes.
-6. Click Suggest Times.
-7. Select one of the suggested times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Selected `09:00 - 10:00` from the suggested available times list.
+8. Checked the start time and end time fields.
 
 ### Expected Result
 
@@ -72,7 +69,7 @@ The selected suggestion fills in the existing start time and end time fields wit
 
 ### Actual Result
 
-The selected suggestion filled in the start time and end time fields without saving a reservation.
+Selecting `09:00 - 10:00` filled the start time field with `09:00` and the end time field with `10:00`. The application displayed the message `Suggested time selected. Review the times, then create the reservation.` No reservation was created from selecting the suggestion alone.
 
 ### Status
 
@@ -80,14 +77,22 @@ Pass
 
 ## Test Case 3: Partial Availability Avoids Reserved Times
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+- Existing reservation checked against: reservation data in `reservations.json`
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space and date that already have an existing reservation in `reservations.json`.
-4. Enter a valid duration in minutes.
-5. Click Suggest Times.
-6. Observe the suggested times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Observed the suggested available times and checked that suggestions did not overlap reserved times.
 
 ### Expected Result
 
@@ -95,7 +100,7 @@ The application only displays suggested times that do not overlap existing reser
 
 ### Actual Result
 
-The application displayed only suggested times that did not overlap existing reservations.
+The application displayed suggested times for `Nevins Hall Computer Lab` on `2026-07-08` and did not show suggestions that conflicted with existing reservations for the selected space and date.
 
 ### Status
 
@@ -103,14 +108,22 @@ Pass
 
 ## Test Case 4: Suggestions Respect Conflicts and Buffer Rules
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+- Existing reservation data source: `reservations.json`
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space and date with an existing reservation.
-4. Enter a duration that would create suggestions near the existing reservation.
-5. Click Suggest Times.
-6. Check whether the suggestions avoid conflicting or too-close times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Checked whether the suggestions avoided conflicting or too-close times.
 
 ### Expected Result
 
@@ -118,7 +131,7 @@ The application does not suggest times that overlap an existing reservation or v
 
 ### Actual Result
 
-The application did not suggest times that conflicted with an existing reservation or violated the buffer rule.
+The application displayed available suggestions and did not suggest times that conflicted with existing reservation data or violated the required buffer rule.
 
 ### Status
 
@@ -126,14 +139,21 @@ Pass
 
 ## Test Case 5: Duration Boundary
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter a valid duration, such as `60`.
-6. Click Suggest Times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Checked that the suggested times matched the requested duration.
 
 ### Expected Result
 
@@ -141,7 +161,7 @@ The application displays suggestions that match the requested duration and stay 
 
 ### Actual Result
 
-The application displayed suggestions that matched the requested duration and stayed within the reservation schedule.
+The application displayed 60-minute suggestions such as `08:00 - 09:00`, `08:30 - 09:30`, `09:00 - 10:00`, `09:30 - 10:30`, `10:00 - 11:00`, and `10:30 - 11:30`.
 
 ### Status
 
@@ -149,15 +169,22 @@ Pass
 
 ## Test Case 6: Opening and Closing Boundary
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+- Reservation schedule checked: 8:00 AM to 8:00 PM
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter a duration that fits within the schedule.
-6. Click Suggest Times.
-7. Check the earliest and latest suggested times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Checked the earliest and latest suggested times.
 
 ### Expected Result
 
@@ -165,7 +192,7 @@ The application only suggests times within the allowed schedule and does not sug
 
 ### Actual Result
 
-The application only displayed suggestions within the allowed schedule.
+The application displayed suggestions starting within the allowed schedule. The visible suggestions began at `08:00 - 09:00`, and no suggestions before 8:00 AM were shown.
 
 ### Status
 
@@ -173,13 +200,21 @@ Pass
 
 ## Test Case 7: No Valid Times Available
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 1000 minutes
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space and date where no valid suggestions are available, or enter a duration that cannot fit.
-4. Click Suggest Times.
-5. Observe the message shown by the application.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `1000` in the duration field.
+6. Clicked Suggest Times.
+7. Observed the message shown by the application.
 
 ### Expected Result
 
@@ -187,7 +222,7 @@ The application displays a no-times or empty-state message.
 
 ### Actual Result
 
-The application displayed a message showing that no available times were found.
+The application displayed a message showing that no available times were found because the requested duration could not fit within the available schedule.
 
 ### Status
 
@@ -195,14 +230,20 @@ Pass
 
 ## Test Case 8: Invalid Duration Input
 
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: abc
+
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter invalid duration input, such as letters or a blank value.
-6. Click Suggest Times.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `abc` in the duration field.
+6. Clicked Suggest Times.
 
 ### Expected Result
 
@@ -210,24 +251,64 @@ The application does not load suggestions and displays a validation message.
 
 ### Actual Result
 
-The application displayed a validation message and did not load suggestions.
+The application displayed a validation message and did not load time suggestions.
 
 ### Status
 
 Pass
 
-## Test Case 9: Create Reservation Still Works After Using Suggestions
+## Test Case 9: Blank Duration Input
+
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: blank
 
 ### Steps
 
-1. Run the application using `.\mvnw.cmd javafx:run`.
-2. Open the Create Reservation tab.
-3. Select a space.
-4. Select a date.
-5. Enter a valid duration.
-6. Click Suggest Times.
-7. Select a suggested time.
-8. Click Create Reservation.
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Left the duration field blank.
+6. Clicked Suggest Times.
+
+### Expected Result
+
+The application does not load suggestions and displays a validation message.
+
+### Actual Result
+
+The application displayed a validation message and did not load time suggestions.
+
+### Status
+
+Pass
+
+## Test Case 10: Create Reservation Still Works After Using Suggestions
+
+### Inputs Used
+
+- Space: Nevins Hall Computer Lab
+- Date: 2026-07-08
+- Duration: 60 minutes
+- Selected suggestion: 09:00 - 10:00
+- Start time populated: 09:00
+- End time populated: 10:00
+
+### Steps
+
+1. Ran the application using `.\mvnw.cmd javafx:run`.
+2. Opened the Create Reservation tab.
+3. Selected `Nevins Hall Computer Lab`.
+4. Selected `2026-07-08`.
+5. Entered `60` in the duration field.
+6. Clicked Suggest Times.
+7. Selected `09:00 - 10:00`.
+8. Confirmed that the start time field showed `09:00`.
+9. Confirmed that the end time field showed `10:00`.
+10. Clicked Create Reservation.
 
 ### Expected Result
 
@@ -235,7 +316,7 @@ The application creates the reservation successfully after the suggested start a
 
 ### Actual Result
 
-The application created the reservation successfully after selecting a suggested time.
+The selected suggestion populated the start and end time fields. The reservation was not created until the Create Reservation button was clicked.
 
 ### Status
 
