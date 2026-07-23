@@ -4,11 +4,14 @@ import reservationsystem.model.User;
 import reservationsystem.persistence.UserJsonRepository;
 import reservationsystem.service.AuthenticationResult;
 import reservationsystem.service.AuthenticationService;
+import reservationsystem.service.AuthenticatedUserProvider;
 import reservationsystem.service.CurrentUserProvider;
 
 import java.util.List;
 
-public class AuthenticationController implements CurrentUserProvider {
+public class AuthenticationController implements
+        CurrentUserProvider,
+        AuthenticatedUserProvider {
 	
 	   private final AuthenticationService authenticationService;
 	    private final UserJsonRepository userJsonRepository;
@@ -69,6 +72,7 @@ public class AuthenticationController implements CurrentUserProvider {
 	        return authenticationService.isLoggedIn();
 	    }
 
+	    @Override
 	    public User getCurrentUser() {
 	        return authenticationService.getCurrentUser();
 	    }
