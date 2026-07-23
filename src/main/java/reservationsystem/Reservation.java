@@ -26,15 +26,19 @@ import reservationsystem.view.LoginView;
 public class Reservation extends Application {
 	
 	private Stage primaryStage;
-	private Scene mainScene;
-	private Label currentUserLabel;
 	private AuthenticationController authenticationController;
-	private MyReservationsView myReservationsView;
 
     @Override
     public void start(Stage stage) {
     	primaryStage = stage;
     	authenticationController = new AuthenticationController();
+
+        stage.setTitle("Reservation System");
+        showLoginScreen();
+        stage.show();
+    }
+
+    private Scene createMainScene() {
         ReservationController reservationController =
                 new ReservationController(authenticationController);
         SpaceListView spaceListView = new SpaceListView();
@@ -44,7 +48,8 @@ public class Reservation extends Application {
                         new SpaceController(),
                         reservationController
                 );
-        myReservationsView = new MyReservationsView(reservationController);
+        MyReservationsView myReservationsView =
+                new MyReservationsView(reservationController);
         RegistrationView registrationView = new RegistrationView();
 
         TabPane tabPane = new TabPane();
@@ -83,20 +88,23 @@ public class Reservation extends Application {
         mainLayout.setTop(createSessionBar());
         mainLayout.setCenter(tabPane);
 
-        mainScene = new Scene(mainLayout, 800, 650);
+        Scene mainScene = new Scene(mainLayout, 800, 650);
         mainScene.getStylesheets().add(
                 getClass()
                         .getResource("/availability-styles.css")
                         .toExternalForm()
         );
 
-        stage.setTitle("Reservation System");
-        showLoginScreen();
-        stage.show();
+        return mainScene;
     }
     
     private HBox createSessionBar() {
-        currentUserLabel = new Label();
+        Label currentUserLabel = new Label(
+                "Logged in as: "
+                        + authenticationController
+                                .getCurrentUser()
+                                .getUsername()
+        );
 
         Button logoutButton = new Button("Logout");
         logoutButton.setId("logoutButton");
@@ -147,20 +155,11 @@ public class Reservation extends Application {
             return;
         }
 
-        currentUserLabel.setText(
-                "Logged in as: "
-                        + authenticationController
-                                .getCurrentUser()
-                                .getUsername()
-        );
-
-        primaryStage.setScene(mainScene);
+        primaryStage.setScene(createMainScene());
         primaryStage.centerOnScreen();
     }
 
     private void logout() {
-        myReservationsView.resetForSessionChange();
-        currentUserLabel.setText("");
         authenticationController.logout();
         showLoginScreen();
     }
