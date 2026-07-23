@@ -4,7 +4,6 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.CurrentUserProvider;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
@@ -25,34 +24,11 @@ public class ReservationController {
     private final MyReservationsService myReservationsService;
     private final SpaceController spaceController;
 
-    public ReservationController() {
-        this(
-                new ReservationJsonRepository(),
-                new ReservationService(),
-                new DefaultUserProvider(),
-                new MyReservationsService(),
-                new SpaceController()
-        );
-    }
-
     public ReservationController(CurrentUserProvider currentUserProvider) {
         this(
                 new ReservationJsonRepository(),
                 new ReservationService(),
                 currentUserProvider,
-                new MyReservationsService(),
-                new SpaceController()
-        );
-    }
-
-    public ReservationController(
-            ReservationJsonRepository reservationJsonRepository,
-            ReservationService reservationService
-    ) {
-        this(
-                reservationJsonRepository,
-                reservationService,
-                new DefaultUserProvider(),
                 new MyReservationsService(),
                 new SpaceController()
         );
@@ -79,6 +55,12 @@ public class ReservationController {
             MyReservationsService myReservationsService,
             SpaceController spaceController
     ) {
+        if (currentUserProvider == null) {
+            throw new IllegalArgumentException(
+                    "Current user provider cannot be null"
+            );
+        }
+
         this.reservationJsonRepository = reservationJsonRepository;
         this.reservationService = reservationService;
         this.currentUserProvider = currentUserProvider;

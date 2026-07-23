@@ -9,7 +9,6 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.TimeSlot;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.AvailabilityService;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationModificationResult;
 import reservationsystem.service.ReservationService;
@@ -25,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class US11ModifyReservationIntegrationTest {
 
     private static final LocalDate RESERVATION_DATE = LocalDate.of(2026, 7, 8);
+    private static final String CURRENT_USER_ID = "student";
 
     @TempDir
     Path tempDirectory;
@@ -37,7 +37,7 @@ class US11ModifyReservationIntegrationTest {
         repository.saveReservations(List.of(new Reservation(
                 1,
                 1,
-                DefaultUserProvider.DEFAULT_USER_ID,
+                CURRENT_USER_ID,
                 RESERVATION_DATE,
                 LocalTime.of(9, 0),
                 LocalTime.of(10, 0)
@@ -46,7 +46,7 @@ class US11ModifyReservationIntegrationTest {
         ReservationController reservationController = new ReservationController(
                 repository,
                 new ReservationService(),
-                new DefaultUserProvider(),
+                () -> CURRENT_USER_ID,
                 new MyReservationsService(),
                 new SpaceController()
         );

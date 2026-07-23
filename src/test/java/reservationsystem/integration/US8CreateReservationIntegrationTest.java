@@ -5,7 +5,6 @@ import org.junit.jupiter.api.io.TempDir;
 import reservationsystem.controller.ReservationController;
 import reservationsystem.model.Reservation;
 import reservationsystem.persistence.ReservationJsonRepository;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
 
@@ -17,6 +16,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class US8CreateReservationIntegrationTest {
+
+    private static final String CURRENT_USER_ID = "student";
 
     @TempDir
     Path tempDirectory;
@@ -36,7 +37,11 @@ class US8CreateReservationIntegrationTest {
 
         ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
-        ReservationController controller = new ReservationController(repository, reservationService);
+        ReservationController controller = new ReservationController(
+                repository,
+                reservationService,
+                () -> CURRENT_USER_ID
+        );
 
         List<Reservation> originalReservations = repository.loadReservations();
 
@@ -55,7 +60,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
+                                    && reservation.getUserId().equals(CURRENT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(16, 0))
                                     && reservation.getEndTime().equals(LocalTime.of(17, 0))
@@ -76,7 +81,11 @@ class US8CreateReservationIntegrationTest {
 
         ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
-        ReservationController controller = new ReservationController(repository, reservationService);
+        ReservationController controller = new ReservationController(
+                repository,
+                reservationService,
+                () -> CURRENT_USER_ID
+        );
 
         List<Reservation> originalReservations = repository.loadReservations();
 
@@ -96,7 +105,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
+                                    && reservation.getUserId().equals(CURRENT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(9, 30))
                                     && reservation.getEndTime().equals(LocalTime.of(10, 30))
@@ -118,7 +127,11 @@ class US8CreateReservationIntegrationTest {
 
         ReservationJsonRepository repository = createIsolatedRepository();
         ReservationService reservationService = new ReservationService();
-        ReservationController controller = new ReservationController(repository, reservationService);
+        ReservationController controller = new ReservationController(
+                repository,
+                reservationService,
+                () -> CURRENT_USER_ID
+        );
 
         List<Reservation> originalReservations = repository.loadReservations();
 
@@ -141,7 +154,7 @@ class US8CreateReservationIntegrationTest {
             boolean reservationWasSaved = updatedReservations.stream()
                     .anyMatch(reservation ->
                             reservation.getSpaceId() == 1
-                                    && reservation.getUserId().equals(DefaultUserProvider.DEFAULT_USER_ID)
+                                    && reservation.getUserId().equals(CURRENT_USER_ID)
                                     && reservation.getDate().equals(LocalDate.of(2026, 7, 8))
                                     && reservation.getStartTime().equals(LocalTime.of(10, 5))
                                     && reservation.getEndTime().equals(LocalTime.of(11, 0))
