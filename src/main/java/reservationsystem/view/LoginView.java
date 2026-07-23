@@ -12,8 +12,9 @@ import reservationsystem.service.AuthenticationResult;
 
 public class LoginView {
 	
-	private final AuthenticationController authenticationController;
+    private final AuthenticationController authenticationController;
     private final Runnable loginSuccessAction;
+    private final Runnable registrationAction;
 
     private final TextField usernameField;
     private final PasswordField passwordField;
@@ -21,7 +22,9 @@ public class LoginView {
 
     public LoginView(
             AuthenticationController authenticationController,
-            Runnable loginSuccessAction
+            Runnable loginSuccessAction,
+            Runnable registrationAction,
+            String initialMessage
     ) {
         if (authenticationController == null) {
             throw new IllegalArgumentException(
@@ -35,12 +38,20 @@ public class LoginView {
             );
         }
 
+        if (registrationAction == null) {
+            throw new IllegalArgumentException(
+                    "Registration action cannot be null"
+            );
+        }
+
         this.authenticationController = authenticationController;
         this.loginSuccessAction = loginSuccessAction;
+        this.registrationAction = registrationAction;
 
         usernameField = new TextField();
         passwordField = new PasswordField();
         messageLabel = new Label();
+        messageLabel.setText(initialMessage == null ? "" : initialMessage);
     }
 
     public VBox createView() {
@@ -64,6 +75,10 @@ public class LoginView {
 
         passwordField.setOnAction(event -> login());
 
+        Button registrationButton = new Button("Create Account");
+        registrationButton.setId("registrationButton");
+        registrationButton.setOnAction(event -> registrationAction.run());
+
         messageLabel.setId("loginMessageLabel");
 
         VBox layout = new VBox(
@@ -74,6 +89,7 @@ public class LoginView {
                 new Label("Password:"),
                 passwordField,
                 loginButton,
+                registrationButton,
                 messageLabel
         );
 
