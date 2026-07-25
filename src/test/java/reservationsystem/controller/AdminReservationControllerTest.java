@@ -185,6 +185,33 @@ public class AdminReservationControllerTest {
     }
 
     @Test
+    void missingDateIsRejectedWithoutSaving() {
+        FakeReservationJsonRepository reservationRepository =
+                new FakeReservationJsonRepository(List.of());
+
+        AdminReservationController controller = controller(
+                new User("admin", "admin123", true),
+                reservationRepository
+        );
+
+        AdminReservationCreationResult result =
+                controller.createReservationForUser(
+                        "student",
+                        1,
+                        null,
+                        LocalTime.of(12, 0),
+                        LocalTime.of(13, 0)
+                );
+
+        assertEquals(
+                AdminReservationCreationResult.Status.VALIDATION_FAILED,
+                result.getStatus()
+        );
+        assertEquals("Reservation date is required", result.getMessage());
+        assertEquals(0, reservationRepository.getSaveCount());
+    }
+
+    @Test
     void reservationLongerThanTwoHoursIsRejectedWithoutSaving() {
         FakeReservationJsonRepository reservationRepository =
                 new FakeReservationJsonRepository(List.of());

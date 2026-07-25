@@ -87,6 +87,12 @@ public class AdminReservationController {
             );
         }
 
+        if (date == null) {
+            return AdminReservationCreationResult.validationFailed(
+                    "Reservation date is required"
+            );
+        }
+
         User targetUser = findUser(targetUserId);
 
         if (targetUser == null) {
