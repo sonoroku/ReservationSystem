@@ -24,9 +24,9 @@
 
 ### 2. Missing Password
 
-- Input: Username `us13manual`, blank password, blank confirmation
-- Expected: Registration is rejected with clear required-field feedback.
-- Actual: Registration was rejected and `Please confirm the password.` was displayed.
+- Input: Username `us13manual`, blank password, confirmation `secure123`
+- Expected: Registration is rejected with a password-required message.
+- Actual: Registration was rejected and `Password is required` was displayed.
 - Result: Pass
 
 ### 3. Password Shorter Than Six Characters
