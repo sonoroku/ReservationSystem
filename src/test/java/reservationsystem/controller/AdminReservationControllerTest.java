@@ -19,9 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AdminReservationControllerTest {
-	
+
 	private static final LocalDate TEST_DATE =
             LocalDate.of(2026, 8, 1);
 
@@ -265,6 +266,40 @@ public class AdminReservationControllerTest {
                 result.getMessage()
         );
         assertEquals(0, reservationRepository.getSaveCount());
+    }
+
+    @Test
+    void administratorReceivesSortedUserIdsForSelection() {
+        AdminReservationController controller = controller(
+                new User("admin", "admin123", true),
+                new FakeReservationJsonRepository(List.of())
+        );
+
+        List<String> userIds =
+                controller.getAvailableUserIds();
+
+        assertEquals(
+                List.of("admin", "student"),
+                userIds
+        );
+    }
+
+    @Test
+    void regularUserCannotLoadAdminUserSelector() {
+        AdminReservationController controller = controller(
+                new User("student", "student123", false),
+                new FakeReservationJsonRepository(List.of())
+        );
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                controller::getAvailableUserIds
+        );
+
+        assertEquals(
+                "Administrator access is required",
+                exception.getMessage()
+        );
     }
 
     private AdminReservationController controller(

@@ -26,8 +26,11 @@ import reservationsystem.controller.SpaceController;
 import reservationsystem.service.AuthorizationService;
 import reservationsystem.view.LoginView;
 
+import reservationsystem.controller.AdminReservationController;
+import reservationsystem.view.AdminCreateReservationView;
+
 public class Reservation extends Application {
-	
+
 	private Stage primaryStage;
 	private AuthenticationController authenticationController;
 	private AuthenticationNavigation authenticationNavigation;
@@ -47,13 +50,15 @@ public class Reservation extends Application {
     }
 
     private Scene createMainScene() {
+        SpaceController spaceController = new SpaceController();
+
         ReservationController reservationController =
                 new ReservationController(authenticationController);
         SpaceListView spaceListView = new SpaceListView();
         AvailabilityView availabilityView = new AvailabilityView();
         CreateReservationView createReservationView =
                 new CreateReservationView(
-                        new SpaceController(),
+                        spaceController,
                         reservationController
                 );
         MyReservationsView myReservationsView =
@@ -77,13 +82,48 @@ public class Reservation extends Application {
         myReservationsScrollPane.setFitToWidth(true);
         myReservationsTab.setContent(myReservationsScrollPane);
         myReservationsTab.setClosable(false);
-        
+
         tabPane.getTabs().addAll(
         spacesTab,
         availabilityTab,
         createReservationTab,
         myReservationsTab
         );
+
+        if (authorizationService.isCurrentUserAdmin()) {
+            AdminReservationController adminReservationController =
+                    new AdminReservationController(
+                            authenticationController
+                    );
+
+            Runnable refreshReservationViews = () -> {
+                myReservationsView.refreshReservations();
+                availabilityView.refreshAvailability();
+            };
+
+            AdminCreateReservationView adminCreateReservationView =
+                    new AdminCreateReservationView(
+                            spaceController,
+                            adminReservationController,
+                            refreshReservationViews
+                    );
+
+            Tab adminCreateReservationTab =
+                    new Tab("Admin Create Reservation");
+
+            ScrollPane adminCreateScrollPane =
+                    new ScrollPane(
+                            adminCreateReservationView.createView()
+                    );
+
+            adminCreateScrollPane.setFitToWidth(true);
+            adminCreateReservationTab.setContent(
+                    adminCreateScrollPane
+            );
+            adminCreateReservationTab.setClosable(false);
+
+            tabPane.getTabs().add(adminCreateReservationTab);
+        }
 
         BorderPane mainLayout = new BorderPane();
         mainLayout.setTop(createSessionBar());
@@ -98,7 +138,7 @@ public class Reservation extends Application {
 
         return mainScene;
     }
-    
+
     private HBox createSessionBar() {
         Label currentUserLabel = new Label(
                 "Logged in as: "

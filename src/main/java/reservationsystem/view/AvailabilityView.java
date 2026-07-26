@@ -32,6 +32,9 @@ public class AvailabilityView {
     private final ListView<AvailabilityListItem> availabilityListView;
     private final Label messageLabel;
 
+    private boolean availabilityHasBeenLoaded;
+    private boolean rangeViewWasLastLoaded;
+
     public AvailabilityView() {
         this(new SpaceController(), new AvailabilityController());
     }
@@ -138,6 +141,18 @@ public class AvailabilityView {
         });
     }
 
+    public void refreshAvailability() {
+        if (!availabilityHasBeenLoaded) {
+            return;
+        }
+
+        if (rangeViewWasLastLoaded) {
+            loadRangeAvailability();
+        } else {
+            loadDayAvailability();
+        }
+    }
+
     private void loadDayAvailability() {
         Space selectedSpace = spaceComboBox.getValue();
         LocalDate selectedDate = startDatePicker.getValue();
@@ -166,6 +181,9 @@ public class AvailabilityView {
 
         availabilityListView.setItems(FXCollections.observableArrayList(displayItems));
         showMessage("Showing availability for " + selectedSpace.getName() + ".");
+
+        availabilityHasBeenLoaded = true;
+        rangeViewWasLastLoaded = false;
     }
 
     private void loadRangeAvailability() {
@@ -198,6 +216,8 @@ public class AvailabilityView {
             }
 
             availabilityListView.setItems(FXCollections.observableArrayList(displayItems));
+            availabilityHasBeenLoaded = true;
+            rangeViewWasLastLoaded = true;
             showMessage("Showing date range availability for " + selectedSpace.getName() + ".");
         } catch (IllegalArgumentException exception) {
             availabilityListView.getItems().clear();
