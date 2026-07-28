@@ -4,6 +4,7 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.User;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.persistence.UserJsonRepository;
+import reservationsystem.service.AdminReservationCancellationResult;
 import reservationsystem.service.AdminReservationCreationResult;
 import reservationsystem.service.AuthenticatedUserProvider;
 import reservationsystem.service.AuthorizationResult;
@@ -86,6 +87,38 @@ public class AdminReservationController {
                 .map(User::getUsername)
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .toList();
+    }
+
+    public AdminReservationCancellationResult cancelReservation(
+            int reservationId
+    ) {
+        AuthorizationResult authorizationResult =
+                authorizationService.checkAdminAccess();
+
+        if (!authorizationResult.isAuthorized()) {
+            return AdminReservationCancellationResult.unauthorized(
+                    authorizationResult.getMessage()
+            );
+        }
+
+        List<Reservation> existingReservations = new ArrayList<>(
+                reservationJsonRepository.loadReservations()
+        );
+
+        Reservation reservationToCancel = existingReservations.stream()
+                .filter(reservation ->
+                        reservation.getId() == reservationId)
+                .findFirst()
+                .orElse(null);
+
+        if (reservationToCancel == null) {
+            return AdminReservationCancellationResult.notFound();
+        }
+
+        existingReservations.remove(reservationToCancel);
+        reservationJsonRepository.saveReservations(existingReservations);
+
+        return AdminReservationCancellationResult.success();
     }
 
     public AdminReservationCreationResult createReservationForUser(
