@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdminReservationCancellationControllerTest {
@@ -101,6 +102,57 @@ class AdminReservationCancellationControllerTest {
         assertEquals("Reservation was not found", result.getMessage());
         assertEquals(List.of(1, 2), originalReservationIds(repository));
         assertEquals(0, repository.getSaveCount());
+    }
+
+    @Test
+    void administratorReceivesAllReservationsInChronologicalOrder() {
+        FakeReservationJsonRepository repository = repositoryWith(
+                reservation(8, "student"),
+                reservation(3, "admin"),
+                reservation(5, "student")
+        );
+
+        List<Reservation> reservations = controller(
+                new User("admin", "admin123", true),
+                repository
+        ).getAllReservations();
+
+        assertEquals(
+                List.of(3, 5, 8),
+                reservations.stream()
+                        .map(Reservation::getId)
+                        .toList()
+        );
+        assertEquals(
+                List.of("admin", "student", "student"),
+                reservations.stream()
+                        .map(Reservation::getUserId)
+                        .toList()
+        );
+    }
+
+    @Test
+    void regularUserCannotLoadSystemWideReservationList() {
+        FakeReservationJsonRepository repository = repositoryWith(
+                reservation(1, "student")
+        );
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> controller(
+                        new User(
+                                "student",
+                                "student123",
+                                false
+                        ),
+                        repository
+                ).getAllReservations()
+        );
+
+        assertEquals(
+                "Administrator access is required",
+                exception.getMessage()
+        );
     }
 
     private AdminReservationController controller(
