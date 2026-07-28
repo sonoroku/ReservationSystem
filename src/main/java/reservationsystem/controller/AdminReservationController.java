@@ -11,6 +11,7 @@ import reservationsystem.service.AuthorizationResult;
 import reservationsystem.service.AuthorizationService;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
+import reservationsystem.service.AdminReservationModificationResult;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -199,6 +200,81 @@ public class AdminReservationController {
         reservationJsonRepository.saveReservations(existingReservations);
 
         return AdminReservationCreationResult.success(newReservation);
+    }
+    
+    public AdminReservationModificationResult modifyReservation(
+            int reservationId,
+            int spaceId,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        AuthorizationResult authorizationResult =
+                authorizationService.checkAdminAccess();
+
+        if (!authorizationResult.isAuthorized()) {
+            return AdminReservationModificationResult.unauthorized(
+                    authorizationResult.getMessage()
+            );
+        }
+
+        List<Reservation> existingReservations = new ArrayList<>(
+                reservationJsonRepository.loadReservations()
+        );
+
+        int reservationIndex = -1;
+
+        for (int index = 0; index < existingReservations.size(); index++) {
+            if (existingReservations.get(index).getId() == reservationId) {
+                reservationIndex = index;
+                break;
+            }
+        }
+
+        if (reservationIndex < 0) {
+            return AdminReservationModificationResult.notFound();
+        }
+
+        if (date == null) {
+            return AdminReservationModificationResult.validationFailed(
+                    "Reservation date is required"
+            );
+        }
+
+        Reservation existingReservation =
+                existingReservations.get(reservationIndex);
+
+        Reservation updatedReservation = new Reservation(
+                existingReservation.getId(),
+                spaceId,
+                existingReservation.getUserId(),
+                date,
+                startTime,
+                endTime
+        );
+
+        ReservationValidationResult validationResult =
+                reservationService.validateReservationUpdate(
+                        updatedReservation,
+                        existingReservations
+                );
+
+        if (!validationResult.isValid()) {
+            return AdminReservationModificationResult.validationFailed(
+                    validationResult.getMessage()
+            );
+        }
+
+        existingReservations.set(
+                reservationIndex,
+                updatedReservation
+        );
+
+        reservationJsonRepository.saveReservations(existingReservations);
+
+        return AdminReservationModificationResult.success(
+                updatedReservation
+        );
     }
 
     private User findUser(String targetUserId) {
