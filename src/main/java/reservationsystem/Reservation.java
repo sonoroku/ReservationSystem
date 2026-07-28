@@ -27,6 +27,7 @@ import reservationsystem.service.AuthorizationService;
 import reservationsystem.view.LoginView;
 
 import reservationsystem.controller.AdminReservationController;
+import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
 
 public class Reservation extends Application {
@@ -123,6 +124,27 @@ public class Reservation extends Application {
             adminCreateReservationTab.setClosable(false);
 
             tabPane.getTabs().add(adminCreateReservationTab);
+
+            AdminCancelReservationView adminCancelReservationView =
+                    new AdminCancelReservationView(
+                            adminReservationController,
+                            spaceController,
+                            refreshReservationViews
+                    );
+
+            Tab adminCancelReservationTab =
+                    new Tab("Admin Cancel Reservation");
+
+            ScrollPane adminCancelScrollPane =
+                    new ScrollPane(
+                            adminCancelReservationView.createView()
+                    );
+
+            adminCancelScrollPane.setFitToWidth(true);
+            adminCancelReservationTab.setContent(adminCancelScrollPane);
+            adminCancelReservationTab.setClosable(false);
+
+            tabPane.getTabs().add(adminCancelReservationTab);
         }
 
         BorderPane mainLayout = new BorderPane();

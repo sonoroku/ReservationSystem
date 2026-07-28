@@ -89,6 +89,27 @@ public class AdminReservationController {
                 .toList();
     }
 
+    public List<Reservation> getAllReservations() {
+        AuthorizationResult authorizationResult =
+                authorizationService.checkAdminAccess();
+
+        if (!authorizationResult.isAuthorized()) {
+            throw new IllegalStateException(
+                    authorizationResult.getMessage()
+            );
+        }
+
+        return reservationJsonRepository.loadReservations()
+                .stream()
+                .sorted(
+                        Comparator.comparing(Reservation::getDate)
+                                .thenComparing(Reservation::getStartTime)
+                                .thenComparing(Reservation::getEndTime)
+                                .thenComparingInt(Reservation::getId)
+                )
+                .toList();
+    }
+
     public AdminReservationCancellationResult cancelReservation(
             int reservationId
     ) {
