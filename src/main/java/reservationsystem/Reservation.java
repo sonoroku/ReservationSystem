@@ -8,6 +8,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import reservationsystem.view.AvailabilityView;
 import reservationsystem.view.CreateReservationView;
+import reservationsystem.view.DailySummaryView;
 import reservationsystem.view.MyReservationsView;
 import reservationsystem.view.SpaceListView;
 import reservationsystem.view.RegistrationView;
@@ -64,6 +65,8 @@ public class Reservation extends Application {
                 );
         MyReservationsView myReservationsView =
                 new MyReservationsView(reservationController);
+        DailySummaryView dailySummaryView =
+                new DailySummaryView(reservationController);
         TabPane tabPane = new TabPane();
 
         Tab spacesTab = new Tab("Spaces");
@@ -84,11 +87,20 @@ public class Reservation extends Application {
         myReservationsTab.setContent(myReservationsScrollPane);
         myReservationsTab.setClosable(false);
 
+        Tab dailySummaryTab = new Tab("Daily Summary");
+        ScrollPane dailySummaryScrollPane = new ScrollPane(
+                dailySummaryView.createView()
+        );
+        dailySummaryScrollPane.setFitToWidth(true);
+        dailySummaryTab.setContent(dailySummaryScrollPane);
+        dailySummaryTab.setClosable(false);
+
         tabPane.getTabs().addAll(
         spacesTab,
         availabilityTab,
         createReservationTab,
-        myReservationsTab
+        myReservationsTab,
+        dailySummaryTab
         );
 
         if (authorizationService.isCurrentUserAdmin()) {
@@ -100,6 +112,7 @@ public class Reservation extends Application {
             Runnable refreshReservationViews = () -> {
                 myReservationsView.refreshReservations();
                 availabilityView.refreshAvailability();
+                dailySummaryView.refreshSummary();
             };
 
             AdminCreateReservationView adminCreateReservationView =
