@@ -121,6 +121,10 @@ public class MyReservationsView extends VBox {
         );
     }
 
+    public void refreshReservations() {
+        loadReservations();
+    }
+
     private void loadReservations() {
         reservationsListView.getItems().clear();
         hideModificationForm();

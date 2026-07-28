@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AdminReservationController {
-	
+
 	private final ReservationJsonRepository reservationJsonRepository;
     private final UserJsonRepository userJsonRepository;
     private final ReservationService reservationService;
@@ -69,6 +69,23 @@ public class AdminReservationController {
         this.userJsonRepository = userJsonRepository;
         this.reservationService = reservationService;
         this.authorizationService = authorizationService;
+    }
+
+    public List<String> getAvailableUserIds() {
+        AuthorizationResult authorizationResult =
+                authorizationService.checkAdminAccess();
+
+        if (!authorizationResult.isAuthorized()) {
+            throw new IllegalStateException(
+                    authorizationResult.getMessage()
+            );
+        }
+
+        return userJsonRepository.loadUsers()
+                .stream()
+                .map(User::getUsername)
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
     }
 
     public AdminReservationCreationResult createReservationForUser(
