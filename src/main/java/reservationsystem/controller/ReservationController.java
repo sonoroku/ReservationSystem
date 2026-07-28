@@ -4,6 +4,8 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
 import reservationsystem.persistence.ReservationJsonRepository;
 import reservationsystem.service.CurrentUserProvider;
+import reservationsystem.service.DailyReservationSummaryResult;
+import reservationsystem.service.DailyReservationSummaryService;
 import reservationsystem.service.MyReservationsService;
 import reservationsystem.service.ReservationService;
 import reservationsystem.service.ReservationValidationResult;
@@ -105,6 +107,12 @@ public class ReservationController {
         return myReservationsService.getReservationsForUser(
                 currentUserProvider.getCurrentUserId(),
                 reservations
+        );
+    }
+
+    public DailyReservationSummaryResult getDailyReservationSummary() {
+        return new DailyReservationSummaryService().summarize(
+                getMyReservations()
         );
     }
 
