@@ -19,10 +19,10 @@ class US23ReservationReportingIntegrationTest {
         // when the all-reservations report is requested,
         // then all reservations are loaded with owner and space information.
 
-        ReservationReportController controller = new ReservationReportController();
         User admin = new User("admin001", "password123", true);
+        ReservationReportController controller = new ReservationReportController(() -> admin);
 
-        ReservationReportResult result = controller.getAllReservationsReport(admin);
+        ReservationReportResult result = controller.getAllReservationsReport();
 
         assertTrue(result.isSuccessful());
         assertFalse(result.getEntries().isEmpty());
@@ -44,10 +44,10 @@ class US23ReservationReportingIntegrationTest {
         // when the report entries are returned,
         // then they are sorted chronologically.
 
-        ReservationReportController controller = new ReservationReportController();
         User admin = new User("admin001", "password123", true);
+        ReservationReportController controller = new ReservationReportController(() -> admin);
 
-        ReservationReportResult result = controller.getAllReservationsReport(admin);
+        ReservationReportResult result = controller.getAllReservationsReport();
 
         assertTrue(result.isSuccessful());
 
@@ -80,13 +80,13 @@ class US23ReservationReportingIntegrationTest {
         // when the all-reservations report is requested,
         // then the report is rejected.
 
-        ReservationReportController controller = new ReservationReportController();
         User regularUser = new User("user001", "password123", false);
+        ReservationReportController controller = new ReservationReportController(() -> regularUser);
 
-        ReservationReportResult result = controller.getAllReservationsReport(regularUser);
+        ReservationReportResult result = controller.getAllReservationsReport();
 
         assertFalse(result.isSuccessful());
-        assertEquals("Only administrators can view all reservations", result.getMessage());
+        assertEquals("Administrator access is required", result.getMessage());
         assertTrue(result.getEntries().isEmpty());
     }
 }
