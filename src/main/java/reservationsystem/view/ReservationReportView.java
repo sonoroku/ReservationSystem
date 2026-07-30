@@ -6,10 +6,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import reservationsystem.controller.ReservationReportController;
+import reservationsystem.service.CsvExportResult;
+import reservationsystem.service.ReportCsvExporter;
 import reservationsystem.service.ReservationReportEntry;
 import reservationsystem.service.ReservationReportResult;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +23,8 @@ public class ReservationReportView {
     private final ListView<ReservationReportEntry> reportListView;
     private final Label messageLabel;
     private final ReportDateFilterControls dateFilterControls;
+    private final ReportCsvExporter reportCsvExporter;
+    private final ReportCsvExportDialog reportCsvExportDialog;
     private LocalDate appliedStartDate;
     private LocalDate appliedEndDate;
 
@@ -39,6 +45,8 @@ public class ReservationReportView {
                 this::applyDateFilter,
                 this::clearDateFilter
         );
+        reportCsvExporter = new ReportCsvExporter();
+        reportCsvExportDialog = new ReportCsvExportDialog();
     }
 
     public VBox createView() {
@@ -64,6 +72,10 @@ public class ReservationReportView {
         refreshButton.setId("reservationReportRefreshButton");
         refreshButton.setOnAction(event -> refreshReport());
 
+        Button exportButton = new Button("Export CSV");
+        exportButton.setId("reservationReportExportButton");
+        exportButton.setOnAction(event -> exportReport());
+
         refreshReport();
 
         return new VBox(
@@ -71,6 +83,7 @@ public class ReservationReportView {
                 titleLabel,
                 dateFilterControls.getView(),
                 refreshButton,
+                exportButton,
                 messageLabel,
                 reportListView
         );
@@ -131,6 +144,46 @@ public class ReservationReportView {
         reportListView.setItems(
                 FXCollections.observableArrayList(result.getEntries())
         );
+        messageLabel.setText(result.getMessage());
+    }
+
+    private void exportReport() {
+        List<ReservationReportEntry> displayedEntries =
+                getDisplayedEntries();
+        if (displayedEntries.isEmpty()) {
+            messageLabel.setText(
+                    CsvExportResult.emptyData(null).getMessage()
+            );
+            return;
+        }
+
+        Window owner = reportListView.getScene() == null
+                ? null
+                : reportListView.getScene().getWindow();
+        Path destination = reportCsvExportDialog.chooseDestination(
+                owner,
+                "reservations-report.csv"
+        );
+        if (destination == null) {
+            messageLabel.setText("Export cancelled");
+            return;
+        }
+
+        CsvExportResult result = reportCsvExporter.exportReservations(
+                displayedEntries,
+                destination
+        );
+        if (result.getStatus() == CsvExportResult.Status.FILE_EXISTS) {
+            if (!reportCsvExportDialog.confirmOverwrite(owner, destination)) {
+                messageLabel.setText("Export cancelled");
+                return;
+            }
+            result = reportCsvExporter.exportReservations(
+                    displayedEntries,
+                    destination,
+                    true
+            );
+        }
         messageLabel.setText(result.getMessage());
     }
 
