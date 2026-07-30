@@ -31,6 +31,10 @@ import reservationsystem.controller.AdminReservationController;
 import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
 
+import reservationsystem.controller.AdminReservationController;
+import reservationsystem.service.DefaultUserProvider;
+import reservationsystem.view.AdminReservationModificationView;
+
 public class Reservation extends Application {
 
 	private Stage primaryStage;
@@ -67,6 +71,10 @@ public class Reservation extends Application {
                 new MyReservationsView(reservationController);
         DailySummaryView dailySummaryView =
                 new DailySummaryView(reservationController);
+		AdminReservationModificationView adminReservationModificationView =
+        new AdminReservationModificationView(
+                new AdminReservationController(new DefaultUserProvider())
+        );
         TabPane tabPane = new TabPane();
 
         Tab spacesTab = new Tab("Spaces");
@@ -94,14 +102,19 @@ public class Reservation extends Application {
         dailySummaryScrollPane.setFitToWidth(true);
         dailySummaryTab.setContent(dailySummaryScrollPane);
         dailySummaryTab.setClosable(false);
-
+		
+		Tab adminModifyReservationTab = new Tab("Admin Modify Reservation");
+		adminModifyReservationTab.setContent(adminReservationModificationView.createView());
+		adminModifyReservationTab.setClosable(false);
+		
         tabPane.getTabs().addAll(
         spacesTab,
         availabilityTab,
         createReservationTab,
         myReservationsTab,
-        dailySummaryTab
-        );
+        registrationTab,
+        adminModifyReservationTab
+);
 
         if (authorizationService.isCurrentUserAdmin()) {
             AdminReservationController adminReservationController =
