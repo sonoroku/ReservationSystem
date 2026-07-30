@@ -31,6 +31,7 @@ import reservationsystem.view.LoginView;
 import reservationsystem.controller.AdminReservationController;
 import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
+import reservationsystem.view.AdminReservationModificationView;
 import reservationsystem.view.SpaceUsageReportView;
 
 public class Reservation extends Application {
@@ -124,6 +125,13 @@ public class Reservation extends Application {
                 spaceUsageReportView.refreshReport();
             };
 
+            AdminReservationModificationView adminReservationModificationView =
+                    new AdminReservationModificationView(
+                            adminReservationController,
+                            spaceController,
+                            refreshReservationViews
+                    );
+
             AdminCreateReservationView adminCreateReservationView =
                     new AdminCreateReservationView(
                             spaceController,
@@ -167,6 +175,17 @@ public class Reservation extends Application {
             adminCancelReservationTab.setClosable(false);
 
             tabPane.getTabs().add(adminCancelReservationTab);
+
+            Tab adminModifyReservationTab =
+                    new Tab("Admin Modify Reservation");
+            ScrollPane adminModifyScrollPane = new ScrollPane(
+                    adminReservationModificationView.createView()
+            );
+            adminModifyScrollPane.setFitToWidth(true);
+            adminModifyReservationTab.setContent(adminModifyScrollPane);
+            adminModifyReservationTab.setClosable(false);
+
+            tabPane.getTabs().add(adminModifyReservationTab);
 
             Tab usageReportTab = new Tab("Usage Report");
             ScrollPane usageReportScrollPane = new ScrollPane(
