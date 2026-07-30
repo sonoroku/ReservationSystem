@@ -10,6 +10,7 @@ import reservationsystem.controller.ReservationReportController;
 import reservationsystem.service.ReservationReportEntry;
 import reservationsystem.service.ReservationReportResult;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReservationReportView {
@@ -17,6 +18,9 @@ public class ReservationReportView {
     private final ReservationReportController reservationReportController;
     private final ListView<ReservationReportEntry> reportListView;
     private final Label messageLabel;
+    private final ReportDateFilterControls dateFilterControls;
+    private LocalDate appliedStartDate;
+    private LocalDate appliedEndDate;
 
     public ReservationReportView(
             ReservationReportController reservationReportController
@@ -30,6 +34,11 @@ public class ReservationReportView {
         this.reservationReportController = reservationReportController;
         reportListView = new ListView<>();
         messageLabel = new Label();
+        dateFilterControls = new ReportDateFilterControls(
+                "reservationReport",
+                this::applyDateFilter,
+                this::clearDateFilter
+        );
     }
 
     public VBox createView() {
@@ -60,6 +69,7 @@ public class ReservationReportView {
         return new VBox(
                 10,
                 titleLabel,
+                dateFilterControls.getView(),
                 refreshButton,
                 messageLabel,
                 reportListView
@@ -67,24 +77,61 @@ public class ReservationReportView {
     }
 
     public void refreshReport() {
-        reportListView.getItems().clear();
-
         try {
-            ReservationReportResult result =
-                    reservationReportController.getAllReservationsReport();
+            ReservationReportResult result = hasAppliedDateFilter()
+                    ? reservationReportController.getAllReservationsReport(
+                            appliedStartDate,
+                            appliedEndDate
+                    )
+                    : reservationReportController
+                            .getAllReservationsReport();
+
+            displayResult(result);
+        } catch (IllegalStateException exception) {
+            messageLabel.setText(exception.getMessage());
+        }
+    }
+
+    private void applyDateFilter() {
+        try {
+            LocalDate startDate = dateFilterControls.getStartDate();
+            LocalDate endDate = dateFilterControls.getEndDate();
+            ReservationReportResult result = reservationReportController
+                    .getAllReservationsReport(startDate, endDate);
 
             if (!result.isSuccessful()) {
                 messageLabel.setText(result.getMessage());
                 return;
             }
 
-            reportListView.setItems(
-                    FXCollections.observableArrayList(result.getEntries())
-            );
-            messageLabel.setText(result.getMessage());
+            appliedStartDate = startDate;
+            appliedEndDate = endDate;
+            displayResult(result);
         } catch (IllegalStateException exception) {
             messageLabel.setText(exception.getMessage());
         }
+    }
+
+    private void clearDateFilter() {
+        appliedStartDate = null;
+        appliedEndDate = null;
+        refreshReport();
+    }
+
+    private boolean hasAppliedDateFilter() {
+        return appliedStartDate != null && appliedEndDate != null;
+    }
+
+    private void displayResult(ReservationReportResult result) {
+        if (!result.isSuccessful()) {
+            messageLabel.setText(result.getMessage());
+            return;
+        }
+
+        reportListView.setItems(
+                FXCollections.observableArrayList(result.getEntries())
+        );
+        messageLabel.setText(result.getMessage());
     }
 
     public List<ReservationReportEntry> getDisplayedEntries() {
