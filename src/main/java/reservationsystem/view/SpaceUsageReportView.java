@@ -6,11 +6,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import reservationsystem.controller.SpaceUsageReportController;
 import reservationsystem.model.Space;
 import reservationsystem.model.SpaceUsageReportRow;
+import reservationsystem.service.CsvExportResult;
+import reservationsystem.service.ReportCsvExporter;
 import reservationsystem.service.SpaceUsageReportResult;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,6 +24,8 @@ public class SpaceUsageReportView {
     private final ListView<SpaceUsageReportRow> reportListView;
     private final Label messageLabel;
     private final ReportDateFilterControls dateFilterControls;
+    private final ReportCsvExporter reportCsvExporter;
+    private final ReportCsvExportDialog reportCsvExportDialog;
     private LocalDate appliedStartDate;
     private LocalDate appliedEndDate;
 
@@ -40,6 +46,8 @@ public class SpaceUsageReportView {
                 this::applyDateFilter,
                 this::clearDateFilter
         );
+        reportCsvExporter = new ReportCsvExporter();
+        reportCsvExportDialog = new ReportCsvExportDialog();
     }
 
     public VBox createView() {
@@ -65,6 +73,10 @@ public class SpaceUsageReportView {
         refreshButton.setId("spaceUsageReportRefreshButton");
         refreshButton.setOnAction(event -> refreshReport());
 
+        Button exportButton = new Button("Export CSV");
+        exportButton.setId("spaceUsageReportExportButton");
+        exportButton.setOnAction(event -> exportReport());
+
         refreshReport();
 
         return new VBox(
@@ -72,6 +84,7 @@ public class SpaceUsageReportView {
                 titleLabel,
                 dateFilterControls.getView(),
                 refreshButton,
+                exportButton,
                 messageLabel,
                 reportListView
         );
@@ -145,6 +158,45 @@ public class SpaceUsageReportView {
     private boolean isDisplayable(SpaceUsageReportResult result) {
         return result.getStatus() == SpaceUsageReportResult.Status.SUCCESS
                 || result.getStatus() == SpaceUsageReportResult.Status.EMPTY;
+    }
+
+    private void exportReport() {
+        List<SpaceUsageReportRow> displayedRows = getDisplayedRows();
+        if (displayedRows.isEmpty()) {
+            messageLabel.setText(
+                    CsvExportResult.emptyData(null).getMessage()
+            );
+            return;
+        }
+
+        Window owner = reportListView.getScene() == null
+                ? null
+                : reportListView.getScene().getWindow();
+        Path destination = reportCsvExportDialog.chooseDestination(
+                owner,
+                "space-usage-report.csv"
+        );
+        if (destination == null) {
+            messageLabel.setText("Export cancelled");
+            return;
+        }
+
+        CsvExportResult result = reportCsvExporter.exportSpaceUsage(
+                displayedRows,
+                destination
+        );
+        if (result.getStatus() == CsvExportResult.Status.FILE_EXISTS) {
+            if (!reportCsvExportDialog.confirmOverwrite(owner, destination)) {
+                messageLabel.setText("Export cancelled");
+                return;
+            }
+            result = reportCsvExporter.exportSpaceUsage(
+                    displayedRows,
+                    destination,
+                    true
+            );
+        }
+        messageLabel.setText(result.getMessage());
     }
 
     public List<SpaceUsageReportRow> getDisplayedRows() {
