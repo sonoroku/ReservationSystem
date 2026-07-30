@@ -30,9 +30,6 @@ import reservationsystem.view.LoginView;
 import reservationsystem.controller.AdminReservationController;
 import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
-
-import reservationsystem.controller.AdminReservationController;
-import reservationsystem.service.DefaultUserProvider;
 import reservationsystem.view.AdminReservationModificationView;
 
 public class Reservation extends Application {
@@ -71,10 +68,6 @@ public class Reservation extends Application {
                 new MyReservationsView(reservationController);
         DailySummaryView dailySummaryView =
                 new DailySummaryView(reservationController);
-		AdminReservationModificationView adminReservationModificationView =
-        new AdminReservationModificationView(
-                new AdminReservationController(new DefaultUserProvider())
-        );
         TabPane tabPane = new TabPane();
 
         Tab spacesTab = new Tab("Spaces");
@@ -102,19 +95,14 @@ public class Reservation extends Application {
         dailySummaryScrollPane.setFitToWidth(true);
         dailySummaryTab.setContent(dailySummaryScrollPane);
         dailySummaryTab.setClosable(false);
-		
-		Tab adminModifyReservationTab = new Tab("Admin Modify Reservation");
-		adminModifyReservationTab.setContent(adminReservationModificationView.createView());
-		adminModifyReservationTab.setClosable(false);
-		
+
         tabPane.getTabs().addAll(
         spacesTab,
         availabilityTab,
         createReservationTab,
         myReservationsTab,
-        registrationTab,
-        adminModifyReservationTab
-);
+        dailySummaryTab
+        );
 
         if (authorizationService.isCurrentUserAdmin()) {
             AdminReservationController adminReservationController =
@@ -127,6 +115,13 @@ public class Reservation extends Application {
                 availabilityView.refreshAvailability();
                 dailySummaryView.refreshSummary();
             };
+
+            AdminReservationModificationView adminReservationModificationView =
+                    new AdminReservationModificationView(
+                            adminReservationController,
+                            spaceController,
+                            refreshReservationViews
+                    );
 
             AdminCreateReservationView adminCreateReservationView =
                     new AdminCreateReservationView(
@@ -171,6 +166,17 @@ public class Reservation extends Application {
             adminCancelReservationTab.setClosable(false);
 
             tabPane.getTabs().add(adminCancelReservationTab);
+
+            Tab adminModifyReservationTab =
+                    new Tab("Admin Modify Reservation");
+            ScrollPane adminModifyScrollPane = new ScrollPane(
+                    adminReservationModificationView.createView()
+            );
+            adminModifyScrollPane.setFitToWidth(true);
+            adminModifyReservationTab.setContent(adminModifyScrollPane);
+            adminModifyReservationTab.setClosable(false);
+
+            tabPane.getTabs().add(adminModifyReservationTab);
         }
 
         BorderPane mainLayout = new BorderPane();

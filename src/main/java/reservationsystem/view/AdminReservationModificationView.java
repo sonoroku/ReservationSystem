@@ -24,6 +24,7 @@ public class AdminReservationModificationView {
 
     private final AdminReservationController adminReservationController;
     private final SpaceController spaceController;
+    private final Runnable reservationModifiedAction;
 
     private final ListView<Reservation> reservationListView;
     private final ComboBox<Space> spaceComboBox;
@@ -33,17 +34,42 @@ public class AdminReservationModificationView {
     private final Label messageLabel;
 
     public AdminReservationModificationView(
-            AdminReservationController adminReservationController
+            AdminReservationController adminReservationController,
+            Runnable reservationModifiedAction
     ) {
-        this(adminReservationController, new SpaceController());
+        this(
+                adminReservationController,
+                new SpaceController(),
+                reservationModifiedAction
+        );
     }
 
     public AdminReservationModificationView(
             AdminReservationController adminReservationController,
-            SpaceController spaceController
+            SpaceController spaceController,
+            Runnable reservationModifiedAction
     ) {
+        if (adminReservationController == null) {
+            throw new IllegalArgumentException(
+                    "Admin reservation controller cannot be null"
+            );
+        }
+
+        if (spaceController == null) {
+            throw new IllegalArgumentException(
+                    "Space controller cannot be null"
+            );
+        }
+
+        if (reservationModifiedAction == null) {
+            throw new IllegalArgumentException(
+                    "Reservation-modified action cannot be null"
+            );
+        }
+
         this.adminReservationController = adminReservationController;
         this.spaceController = spaceController;
+        this.reservationModifiedAction = reservationModifiedAction;
 
         this.reservationListView = new ListView<>();
         this.spaceComboBox = new ComboBox<>();
@@ -214,6 +240,7 @@ public class AdminReservationModificationView {
 
             if (result.isSuccessful()) {
                 loadReservations();
+                reservationModifiedAction.run();
             }
         } catch (DateTimeParseException exception) {
             messageLabel.setText(
