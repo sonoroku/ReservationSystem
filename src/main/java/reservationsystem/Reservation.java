@@ -24,12 +24,14 @@ import javafx.scene.layout.HBox;
 import reservationsystem.controller.AuthenticationController;
 import reservationsystem.controller.ReservationController;
 import reservationsystem.controller.SpaceController;
+import reservationsystem.controller.SpaceUsageReportController;
 import reservationsystem.service.AuthorizationService;
 import reservationsystem.view.LoginView;
 
 import reservationsystem.controller.AdminReservationController;
 import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
+import reservationsystem.view.SpaceUsageReportView;
 
 public class Reservation extends Application {
 
@@ -108,11 +110,18 @@ public class Reservation extends Application {
                     new AdminReservationController(
                             authenticationController
                     );
+            SpaceUsageReportView spaceUsageReportView =
+                    new SpaceUsageReportView(
+                            new SpaceUsageReportController(
+                                    authenticationController
+                            )
+                    );
 
             Runnable refreshReservationViews = () -> {
                 myReservationsView.refreshReservations();
                 availabilityView.refreshAvailability();
                 dailySummaryView.refreshSummary();
+                spaceUsageReportView.refreshReport();
             };
 
             AdminCreateReservationView adminCreateReservationView =
@@ -158,6 +167,16 @@ public class Reservation extends Application {
             adminCancelReservationTab.setClosable(false);
 
             tabPane.getTabs().add(adminCancelReservationTab);
+
+            Tab usageReportTab = new Tab("Usage Report");
+            ScrollPane usageReportScrollPane = new ScrollPane(
+                    spaceUsageReportView.createView()
+            );
+            usageReportScrollPane.setFitToWidth(true);
+            usageReportTab.setContent(usageReportScrollPane);
+            usageReportTab.setClosable(false);
+
+            tabPane.getTabs().add(usageReportTab);
         }
 
         BorderPane mainLayout = new BorderPane();
