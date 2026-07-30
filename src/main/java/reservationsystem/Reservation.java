@@ -23,6 +23,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import reservationsystem.controller.AuthenticationController;
 import reservationsystem.controller.ReservationController;
+import reservationsystem.controller.ReservationReportController;
 import reservationsystem.controller.SpaceController;
 import reservationsystem.controller.SpaceUsageReportController;
 import reservationsystem.service.AuthorizationService;
@@ -32,6 +33,7 @@ import reservationsystem.controller.AdminReservationController;
 import reservationsystem.view.AdminCancelReservationView;
 import reservationsystem.view.AdminCreateReservationView;
 import reservationsystem.view.AdminReservationModificationView;
+import reservationsystem.view.ReservationReportView;
 import reservationsystem.view.SpaceUsageReportView;
 
 public class Reservation extends Application {
@@ -117,12 +119,19 @@ public class Reservation extends Application {
                                     authenticationController
                             )
                     );
+            ReservationReportView reservationReportView =
+                    new ReservationReportView(
+                            new ReservationReportController(
+                                    authenticationController
+                            )
+                    );
 
             Runnable refreshReservationViews = () -> {
                 myReservationsView.refreshReservations();
                 availabilityView.refreshAvailability();
                 dailySummaryView.refreshSummary();
                 spaceUsageReportView.refreshReport();
+                reservationReportView.refreshReport();
             };
 
             AdminReservationModificationView adminReservationModificationView =
@@ -186,6 +195,16 @@ public class Reservation extends Application {
             adminModifyReservationTab.setClosable(false);
 
             tabPane.getTabs().add(adminModifyReservationTab);
+
+            Tab reservationReportTab = new Tab("Reservations Report");
+            ScrollPane reservationReportScrollPane = new ScrollPane(
+                    reservationReportView.createView()
+            );
+            reservationReportScrollPane.setFitToWidth(true);
+            reservationReportTab.setContent(reservationReportScrollPane);
+            reservationReportTab.setClosable(false);
+
+            tabPane.getTabs().add(reservationReportTab);
 
             Tab usageReportTab = new Tab("Usage Report");
             ScrollPane usageReportScrollPane = new ScrollPane(
