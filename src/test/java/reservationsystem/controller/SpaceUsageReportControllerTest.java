@@ -10,6 +10,7 @@ import reservationsystem.service.AuthorizationService;
 import reservationsystem.service.SpaceUsageReportResult;
 import reservationsystem.service.SpaceUsageReportService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,6 +88,30 @@ class SpaceUsageReportControllerTest {
                 result.getMessage()
         );
         assertTrue(result.getRows().isEmpty());
+    }
+
+    @Test
+    void invalidDateRangeDoesNotLoadRepositories() {
+        CountingSpaceRepository spaceRepository =
+                new CountingSpaceRepository(List.of());
+        CountingReservationRepository reservationRepository =
+                new CountingReservationRepository(List.of());
+
+        SpaceUsageReportResult result = controller(
+                new User("admin", "admin123", true),
+                spaceRepository,
+                reservationRepository
+        ).getSpaceUsageReport(
+                LocalDate.of(2026, 8, 12),
+                LocalDate.of(2026, 8, 10)
+        );
+
+        assertEquals(
+                SpaceUsageReportResult.Status.INVALID_DATE_RANGE,
+                result.getStatus()
+        );
+        assertEquals(0, spaceRepository.getLoadCount());
+        assertEquals(0, reservationRepository.getLoadCount());
     }
 
     private SpaceUsageReportController controller(

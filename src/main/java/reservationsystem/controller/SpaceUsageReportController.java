@@ -7,9 +7,11 @@ import reservationsystem.persistence.SpaceJsonRepository;
 import reservationsystem.service.AuthenticatedUserProvider;
 import reservationsystem.service.AuthorizationResult;
 import reservationsystem.service.AuthorizationService;
+import reservationsystem.service.ReportDateRangeResult;
 import reservationsystem.service.SpaceUsageReportResult;
 import reservationsystem.service.SpaceUsageReportService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class SpaceUsageReportController {
@@ -67,6 +69,21 @@ public class SpaceUsageReportController {
     }
 
     public SpaceUsageReportResult getSpaceUsageReport() {
+        return getSpaceUsageReport(null, null, false);
+    }
+
+    public SpaceUsageReportResult getSpaceUsageReport(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        return getSpaceUsageReport(startDate, endDate, true);
+    }
+
+    private SpaceUsageReportResult getSpaceUsageReport(
+            LocalDate startDate,
+            LocalDate endDate,
+            boolean filtered
+    ) {
         AuthorizationResult authorizationResult =
                 authorizationService.checkAdminAccess();
 
@@ -76,13 +93,30 @@ public class SpaceUsageReportController {
             );
         }
 
+        if (filtered) {
+            ReportDateRangeResult dateRangeResult =
+                    ReportDateRangeResult.validate(startDate, endDate);
+
+            if (!dateRangeResult.isValid()) {
+                return SpaceUsageReportResult.invalidDateRange(
+                        dateRangeResult.getMessage()
+                );
+            }
+        }
+
         List<Space> spaces = spaceJsonRepository.loadSpaces();
         List<Reservation> reservations =
                 reservationJsonRepository.loadReservations();
 
-        return spaceUsageReportService.createReport(
-                spaces,
-                reservations
-        );
+        if (filtered) {
+            return spaceUsageReportService.createReport(
+                    spaces,
+                    reservations,
+                    startDate,
+                    endDate
+            );
+        }
+
+        return spaceUsageReportService.createReport(spaces, reservations);
     }
 }

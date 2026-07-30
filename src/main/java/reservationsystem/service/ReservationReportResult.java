@@ -3,16 +3,23 @@ package reservationsystem.service;
 import java.util.List;
 
 public class ReservationReportResult {
-    private final boolean successful;
+    public enum Status {
+        SUCCESS,
+        EMPTY,
+        UNAUTHORIZED,
+        INVALID_DATE_RANGE
+    }
+
+    private final Status status;
     private final String message;
     private final List<ReservationReportEntry> entries;
 
     private ReservationReportResult(
-            boolean successful,
+            Status status,
             String message,
             List<ReservationReportEntry> entries
     ) {
-        this.successful = successful;
+        this.status = status;
         this.message = message;
         this.entries = List.copyOf(entries);
     }
@@ -22,19 +29,43 @@ public class ReservationReportResult {
             throw new IllegalArgumentException("Report entries cannot be null");
         }
 
-        String message = entries.isEmpty()
-                ? "No reservations found"
-                : "Reservations found";
+        if (entries.isEmpty()) {
+            return new ReservationReportResult(
+                    Status.EMPTY,
+                    "No reservations found",
+                    entries
+            );
+        }
 
-        return new ReservationReportResult(true, message, entries);
+        return new ReservationReportResult(
+                Status.SUCCESS,
+                "Reservations found",
+                entries
+        );
     }
 
     public static ReservationReportResult unauthorized(String message) {
-        return new ReservationReportResult(false, message, List.of());
+        return new ReservationReportResult(
+                Status.UNAUTHORIZED,
+                message,
+                List.of()
+        );
+    }
+
+    public static ReservationReportResult invalidDateRange(String message) {
+        return new ReservationReportResult(
+                Status.INVALID_DATE_RANGE,
+                message,
+                List.of()
+        );
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public boolean isSuccessful() {
-        return successful;
+        return status == Status.SUCCESS || status == Status.EMPTY;
     }
 
     public String getMessage() {
