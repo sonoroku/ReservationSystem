@@ -7,9 +7,11 @@ import reservationsystem.persistence.SpaceJsonRepository;
 import reservationsystem.service.AuthenticatedUserProvider;
 import reservationsystem.service.AuthorizationResult;
 import reservationsystem.service.AuthorizationService;
+import reservationsystem.service.ReportDateRangeResult;
 import reservationsystem.service.ReservationReportResult;
 import reservationsystem.service.ReservationReportService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReservationReportController {
@@ -66,14 +68,50 @@ public class ReservationReportController {
     }
 
     public ReservationReportResult getAllReservationsReport() {
+        return getAllReservationsReport(null, null, false);
+    }
+
+    public ReservationReportResult getAllReservationsReport(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        return getAllReservationsReport(startDate, endDate, true);
+    }
+
+    private ReservationReportResult getAllReservationsReport(
+            LocalDate startDate,
+            LocalDate endDate,
+            boolean filtered
+    ) {
         AuthorizationResult authorizationResult = authorizationService.checkAdminAccess();
 
         if (!authorizationResult.isAuthorized()) {
             return ReservationReportResult.unauthorized(authorizationResult.getMessage());
         }
 
+        if (filtered) {
+            ReportDateRangeResult dateRangeResult =
+                    ReportDateRangeResult.validate(startDate, endDate);
+
+            if (!dateRangeResult.isValid()) {
+                return ReservationReportResult.invalidDateRange(
+                        dateRangeResult.getMessage()
+                );
+            }
+        }
+
         List<Reservation> reservations = reservationJsonRepository.loadReservations();
         List<Space> spaces = spaceJsonRepository.loadSpaces();
+
+        if (filtered) {
+            return reservationReportService.generateAllReservationsReport(
+                    authenticatedUserProvider.getCurrentUser(),
+                    reservations,
+                    spaces,
+                    startDate,
+                    endDate
+            );
+        }
 
         return reservationReportService.generateAllReservationsReport(
                 authenticatedUserProvider.getCurrentUser(),

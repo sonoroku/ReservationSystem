@@ -9,7 +9,8 @@ public class SpaceUsageReportResult {
     public enum Status {
         SUCCESS,
         EMPTY,
-        UNAUTHORIZED
+        UNAUTHORIZED,
+        INVALID_DATE_RANGE
     }
 
     private final Status status;
@@ -53,6 +54,14 @@ public class SpaceUsageReportResult {
     public static SpaceUsageReportResult unauthorized(String message) {
         return new SpaceUsageReportResult(
                 Status.UNAUTHORIZED,
+                List.of(),
+                message
+        );
+    }
+
+    public static SpaceUsageReportResult invalidDateRange(String message) {
+        return new SpaceUsageReportResult(
+                Status.INVALID_DATE_RANGE,
                 List.of(),
                 message
         );

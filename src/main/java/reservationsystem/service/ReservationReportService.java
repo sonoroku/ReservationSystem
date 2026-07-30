@@ -4,6 +4,7 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
 import reservationsystem.model.User;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +17,51 @@ public class ReservationReportService {
             User currentUser,
             List<Reservation> reservations,
             List<Space> spaces
+    ) {
+        return generateReport(currentUser, reservations, spaces, null);
+    }
+
+    public ReservationReportResult generateAllReservationsReport(
+            User currentUser,
+            List<Reservation> reservations,
+            List<Space> spaces,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        if (currentUser == null) {
+            return ReservationReportResult.unauthorized(
+                    "An authenticated administrator is required"
+            );
+        }
+
+        if (!currentUser.isAdmin()) {
+            return ReservationReportResult.unauthorized(
+                    "Only administrators can view all reservations"
+            );
+        }
+
+        ReportDateRangeResult dateRangeResult =
+                ReportDateRangeResult.validate(startDate, endDate);
+
+        if (!dateRangeResult.isValid()) {
+            return ReservationReportResult.invalidDateRange(
+                    dateRangeResult.getMessage()
+            );
+        }
+
+        return generateReport(
+                currentUser,
+                reservations,
+                spaces,
+                dateRangeResult.getDateRange()
+        );
+    }
+
+    private ReservationReportResult generateReport(
+            User currentUser,
+            List<Reservation> reservations,
+            List<Space> spaces,
+            ReportDateRange dateRange
     ) {
         if (currentUser == null) {
             return ReservationReportResult.unauthorized("An authenticated administrator is required");
@@ -42,6 +88,11 @@ public class ReservationReportService {
         List<ReservationReportEntry> entries = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
+            if (dateRange != null
+                    && !dateRange.includes(reservation.getDate())) {
+                continue;
+            }
+
             Space space = spacesById.get(reservation.getSpaceId());
 
             String spaceName = space == null ? "Unknown Space" : space.getName();

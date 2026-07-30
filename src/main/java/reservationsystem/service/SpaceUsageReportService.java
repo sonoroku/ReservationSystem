@@ -4,6 +4,7 @@ import reservationsystem.model.Reservation;
 import reservationsystem.model.Space;
 import reservationsystem.model.SpaceUsageReportRow;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,6 +16,36 @@ public class SpaceUsageReportService {
     public SpaceUsageReportResult createReport(
             List<Space> spaces,
             List<Reservation> reservations
+    ) {
+        return createReport(spaces, reservations, null);
+    }
+
+    public SpaceUsageReportResult createReport(
+            List<Space> spaces,
+            List<Reservation> reservations,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        ReportDateRangeResult dateRangeResult =
+                ReportDateRangeResult.validate(startDate, endDate);
+
+        if (!dateRangeResult.isValid()) {
+            return SpaceUsageReportResult.invalidDateRange(
+                    dateRangeResult.getMessage()
+            );
+        }
+
+        return createReport(
+                spaces,
+                reservations,
+                dateRangeResult.getDateRange()
+        );
+    }
+
+    private SpaceUsageReportResult createReport(
+            List<Space> spaces,
+            List<Reservation> reservations,
+            ReportDateRange dateRange
     ) {
         if (spaces == null) {
             throw new IllegalArgumentException("Spaces cannot be null");
@@ -29,6 +60,11 @@ public class SpaceUsageReportService {
         Map<Integer, Integer> reservationCounts = new HashMap<>();
 
         for (Reservation reservation : reservations) {
+            if (dateRange != null
+                    && !dateRange.includes(reservation.getDate())) {
+                continue;
+            }
+
             reservationCounts.merge(
                     reservation.getSpaceId(),
                     1,
