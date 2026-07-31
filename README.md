@@ -104,13 +104,22 @@ New registrations create regular-user accounts.
 
 Prerequisites:
 
-- JDK 25
+- JDK 26.0.1
 - No separate Maven installation is required; the Maven Wrapper is included.
 
 On Windows PowerShell:
 
 ```powershell
 .\mvnw.cmd javafx:run
+```
+
+On Windows Git Bash:
+
+```bash
+cd ~/Documents/ReservationSystem
+export JAVA_HOME="/c/Program Files/Java/jdk-26.0.1"
+chmod +x mvnw
+./mvnw javafx:run
 ```
 
 On macOS or Linux:
@@ -127,6 +136,15 @@ On Windows PowerShell:
 .\mvnw.cmd test
 ```
 
+On Windows Git Bash:
+
+```bash
+cd ~/Documents/ReservationSystem
+export JAVA_HOME="/c/Program Files/Java/jdk-26.0.1"
+chmod +x mvnw
+./mvnw test
+```
+
 On macOS or Linux:
 
 ```bash
@@ -137,6 +155,47 @@ The test suite checks individual rules as well as complete workflows from both
 sprints. Tests that save files use temporary locations so project files and
 normal application data remain unchanged.
 
+## Sprint 2 Verification Summary
+
+Sprint 2 automated regression testing was completed from a clean `main`
+checkout.
+
+```text
+Tested commit/SHA: ec6cea2
+Tests run: 221
+Failures: 0
+Errors: 0
+Skipped: 0
+Build result: BUILD SUCCESS
+```
+
+Sprint 2 manual regression testing was also completed across the main JavaFX
+workflows, including admin login and role visibility, regular-user visibility,
+availability, reservation creation, my-reservations ownership behavior,
+administrator modify and cancel workflows, daily summary, all-reservations
+reporting, usage reporting, CSV export behavior, report date filtering,
+zero-count paths, and restart persistence.
+
+## Sprint 2 Documentation and Traceability
+
+Sprint 2 verification documents are stored in `docs/manual-tests`.
+
+Important Sprint 2 documents include:
+
+- `us-18-manual-system-test.md`
+- `us-23-manual-system-test.md`
+- `us-24-manual-system-test.md`
+- `us-25-manual-system-test.md`
+- `us-26-manual-system-test.md`
+- `sprint-2-automated-regression-test.md`
+- `sprint-2-manual-regression-test.md`
+
+Sprint 2 story-to-test traceability is documented in:
+
+```text
+docs/traceability/sprint-2-traceability.md
+```
+
 ## Data and Persistence
 
 Starter data is stored under `src/main/resources/data`. When the application is
@@ -144,9 +203,26 @@ running, account and reservation changes are saved separately so the original
 starter files remain unchanged. Space information is loaded from the supplied
 space data.
 
+Important data files include:
+
+- `spaces.json`
+- `reservations.json`
+- `users.json`
+
+The application uses JSON files for local persistence and does not require a
+database.
+
 CSV export includes only the information currently shown in the selected
 administrator report. The application asks for confirmation before replacing
 an existing file.
+
+## Exported File Handling
+
+CSV files exported during manual testing are temporary test artifacts. They
+should be reviewed locally and deleted after verification unless they are
+intentionally required as evidence.
+
+Exported CSV files should not be committed by default.
 
 ## Project Structure
 
@@ -165,3 +241,5 @@ an existing file.
 - `docs/manual-tests` — story-level manual system tests and cross-story
   review instructions
 - `docs/regression` — records from full automated test runs
+- `docs/traceability` — traceability documents that map user stories to
+  verification evidence
