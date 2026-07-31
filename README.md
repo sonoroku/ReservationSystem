@@ -4,6 +4,10 @@
 
 [Watch the Sprint 1 demo](https://cdnapisec.kaltura.com/p/2229001/embedPlaykitJs/uiconf_id/45744511?iframeembed=true&entry_id=1_uhw09inm&config%5Bprovider%5D=%7B%22widgetId%22%3A%221_gpuatvr7%22%7D&config%5Bplayback%5D=%7B%22startTime%22%3A0%7D)
 
+## Sprint 2 Demo
+
+[Watch the Sprint 2 demo](https://cdnapisec.kaltura.com/p/2229001/embedPlaykitJs/uiconf_id/45744511?iframeembed=true&entry_id=1_oiwgkzjv&config%5Bprovider%5D=%7B%22widgetId%22%3A%221_w2v5jx1p%22%7D&config%5Bplayback%5D=%7B%22startTime%22%3A0%7D)
+
 ReservationSystem is a JavaFX desktop application for finding and reserving
 campus spaces. It supports regular-user reservation workflows and
 administrator workflows for managing reservations, viewing reports, filtering
