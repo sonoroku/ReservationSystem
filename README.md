@@ -108,7 +108,7 @@ New registrations create regular-user accounts.
 
 Prerequisites:
 
-- JDK 26.0.1
+- JDK 25 or newer
 - No separate Maven installation is required; the Maven Wrapper is included.
 
 On Windows PowerShell:
@@ -121,7 +121,7 @@ On Windows Git Bash:
 
 ```bash
 cd ~/Documents/ReservationSystem
-export JAVA_HOME="/c/Program Files/Java/jdk-26.0.1"
+export JAVA_HOME="/c/Program Files/Java/jdk-25"
 chmod +x mvnw
 ./mvnw javafx:run
 ```
@@ -144,7 +144,7 @@ On Windows Git Bash:
 
 ```bash
 cd ~/Documents/ReservationSystem
-export JAVA_HOME="/c/Program Files/Java/jdk-26.0.1"
+export JAVA_HOME="/c/Program Files/Java/jdk-25"
 chmod +x mvnw
 ./mvnw test
 ```
